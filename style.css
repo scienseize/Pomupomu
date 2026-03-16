@@ -1,0 +1,296 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: #000;
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
+}
+
+body.inverted {
+  background: #fff;
+  color: #000;
+}
+
+/* ─── Layout ──────────────────────────────────────────────────────────── */
+
+.layout {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 6vw 7vw;
+  gap: 6vw;
+  align-items: center;
+}
+
+/* ─── Tasks Column ────────────────────────────────────────────────────── */
+
+.tasks-col {
+  flex: 0 0 26%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.task-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.task-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.bullet {
+  flex-shrink: 0;
+  opacity: 0.45;
+}
+
+.task-text {
+  flex: 1;
+  cursor: pointer;
+}
+
+.task-done .task-text {
+  text-decoration: line-through;
+  opacity: 0.3;
+}
+
+.delete-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+  padding: 0 2px;
+}
+
+.task-item:hover .delete-btn {
+  opacity: 0.4;
+}
+
+.task-add {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.3;
+  transition: opacity 0.2s;
+}
+
+.task-add:focus-within {
+  opacity: 1;
+}
+
+.task-add-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.task-add-input {
+  background: none;
+  border: none;
+  border-bottom: 1px solid currentColor;
+  color: inherit;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  width: 100%;
+  padding: 2px 0;
+}
+
+.task-add-input::placeholder {
+  color: inherit;
+  opacity: 0.5;
+}
+
+/* ─── Timer Column ────────────────────────────────────────────────────── */
+
+.timer-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.mode-tabs {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.mode-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.25;
+  transition: opacity 0.2s;
+  padding: 0;
+}
+
+.mode-btn.active {
+  opacity: 1;
+}
+
+.mode-btn:not(.active):hover {
+  opacity: 0.55;
+}
+
+/* Tagline — same font-size as the timer */
+.tagline {
+  font-size: clamp(40px, 6.5vw, 90px);
+  font-weight: 300;
+  line-height: 1.05;
+  margin-bottom: 0.05em;
+}
+
+.tagline em {
+  font-weight: 900;
+  font-style: italic;
+}
+
+/* Timer display */
+#timer-display {
+  font-size: clamp(64px, 10vw, 140px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  cursor: text;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+  transition: opacity 0.3s;
+  margin-bottom: 1rem;
+}
+
+/* Blinking cursor while in edit mode */
+#timer-display.editing::after {
+  content: "|";
+  font-weight: 300;
+  font-size: 0.65em;
+  vertical-align: middle;
+  margin-left: 0.05em;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Sub-hints (edit, confirm, alarm) */
+.sub-hint {
+  font-size: 0.7rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  opacity: 0.35;
+}
+
+.sub-hint.confirm {
+  opacity: 0.55;
+}
+
+.sub-hint.hidden {
+  display: none;
+}
+
+/* ─── Alarm shake ─────────────────────────────────────────────────────── */
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  10% {
+    transform: translate(-14px, 0);
+  }
+
+  20% {
+    transform: translate(12px, 0);
+  }
+
+  30% {
+    transform: translate(-12px, 0);
+  }
+
+  40% {
+    transform: translate(10px, 0);
+  }
+
+  50% {
+    transform: translate(-8px, 0);
+  }
+
+  60% {
+    transform: translate(8px, 0);
+  }
+
+  70% {
+    transform: translate(-6px, 0);
+  }
+
+  80% {
+    transform: translate(6px, 0);
+  }
+
+  90% {
+    transform: translate(-3px, 0);
+  }
+}
+
+.shaking {
+  animation: shake 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .layout {
+    flex-direction: column-reverse;
+    padding: 2.5rem 2rem;
+    gap: 3rem;
+    align-items: flex-start;
+  }
+
+  .tasks-col {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+}
