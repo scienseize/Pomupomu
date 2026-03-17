@@ -60,7 +60,10 @@
           esc to reset &nbsp;·&nbsp; click timer to re-edit
         </p>
 
-        <button class="timer-btn" id="timer-btn" onclick="onTimerBtnClick()">Start</button>
+        <div class="timer-actions">
+          <button class="timer-btn" id="timer-btn" onclick="onTimerBtnClick()">Start</button>
+          <button class="reset-btn" id="reset-btn" onclick="onResetBtnClick()">Reset</button>
+        </div>
 
         <div class="quick-btns">
           <button class="quick-btn" onclick="addMinutes(5)">+5m</button>

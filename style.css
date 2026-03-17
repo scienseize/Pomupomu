@@ -304,11 +304,17 @@ body.inverted {
   display: none;
 }
 
-/* ─── Start / Pause / Resume button ──────────────────────────────────── */
+/* ─── Start / Pause / Resume + Reset buttons ──────────────────────────── */
+
+.timer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 2.5rem;
+}
 
 .timer-btn {
   display: none;
-  margin-top: 2.5rem;
   padding: 1rem 4rem;
   border-radius: 100px;
   border: none;
@@ -334,6 +340,36 @@ body.inverted {
 
 .timer-btn:active {
   opacity: 0.9;
+  transform: translateY(0);
+}
+
+.reset-btn {
+  display: none;
+  padding: 1rem 2rem;
+  border-radius: 100px;
+  border: 1.5px solid currentColor;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.35;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.reset-btn.visible {
+  display: inline-block;
+}
+
+.reset-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.reset-btn:active {
   transform: translateY(0);
 }
 

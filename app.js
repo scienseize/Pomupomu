@@ -101,6 +101,9 @@ function setState(newState) {
   if (newState === 'running') btn.textContent = 'Pause';
   if (newState === 'paused')  btn.textContent = 'Resume';
 
+  // Reset button
+  document.getElementById('reset-btn').classList.toggle('visible', showBtn);
+
   // Lock mode tabs while timer is active
   const timerActive = newState === 'running' || newState === 'paused' || newState === 'confirm-reset';
   document.querySelectorAll('.mode-btn').forEach(b => { b.disabled = timerActive; });
@@ -249,6 +252,14 @@ function onTimerBtnClick() {
   if (appState === 'paused')  { setState('running'); startCountdown(); }
 }
 
+function onResetBtnClick() {
+  clearInterval(timerInterval);
+  remainingSeconds = 0;
+  lastSetSeconds = 0;
+  setState('idle');
+  updateTimerDisplay();
+}
+
 // ─── Keyboard ─────────────────────────────────────────────────────────────
 document.addEventListener('keydown', (e) => {
   // Alarm takes highest priority
@@ -293,27 +304,16 @@ document.addEventListener('keydown', (e) => {
   } else if (appState === 'running') {
     if (e.key === ' ') {
       e.preventDefault(); clearInterval(timerInterval); setState('paused');
-    } else if (e.key === 'Escape') {
-      showResetConfirm();
     }
 
   } else if (appState === 'paused') {
     if (e.key === ' ') {
       e.preventDefault(); setState('running'); startCountdown();
-    } else if (e.key === 'Escape') {
-      showResetConfirm();
     } else if (e.key >= '0' && e.key <= '9') {
       clearInterval(timerInterval);
       enterEditMode();
       digitBuffer.push(parseInt(e.key));
       updateTimerDisplay();
-    }
-
-  } else if (appState === 'confirm-reset') {
-    if (e.key === 'Enter') {
-      confirmReset();
-    } else if (e.key === 'Escape') {
-      cancelReset();
     }
   }
 });
@@ -327,21 +327,18 @@ function addMinutes(mins) {
     remainingSeconds = bufferToSeconds() + add;
     digitBuffer = [];
     lastSetSeconds = remainingSeconds;
-    setState('running');
+    setState('ready');
     updateTimerDisplay();
-    startCountdown();
   } else if (appState === 'idle') {
     remainingSeconds = add;
     lastSetSeconds = remainingSeconds;
-    setState('running');
+    setState('ready');
     updateTimerDisplay();
-    startCountdown();
   } else if (appState === 'done') {
     remainingSeconds += add;
     lastSetSeconds = remainingSeconds;
-    setState('running');
+    setState('ready');
     updateTimerDisplay();
-    startCountdown();
   } else if (appState === 'ready') {
     remainingSeconds += add;
     lastSetSeconds = remainingSeconds;
