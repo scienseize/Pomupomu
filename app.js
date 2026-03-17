@@ -95,9 +95,9 @@ function setState(newState) {
 
   // Start / Pause / Resume button
   const btn = document.getElementById('timer-btn');
-  const showBtn = newState === 'ready' || newState === 'running' || newState === 'paused';
+  const showBtn = newState === 'ready' || newState === 'done' || newState === 'running' || newState === 'paused';
   btn.classList.toggle('visible', showBtn);
-  if (newState === 'ready')   btn.textContent = 'Start';
+  if (newState === 'ready' || newState === 'done') btn.textContent = 'Start';
   if (newState === 'running') btn.textContent = 'Pause';
   if (newState === 'paused')  btn.textContent = 'Resume';
 
@@ -247,7 +247,7 @@ function onTimerClick() {
 }
 
 function onTimerBtnClick() {
-  if (appState === 'ready')   { setState('running'); startCountdown(); return; }
+  if (appState === 'ready' || appState === 'done') { setState('running'); startCountdown(); return; }
   if (appState === 'running') { clearInterval(timerInterval); setState('paused'); return; }
   if (appState === 'paused')  { setState('running'); startCountdown(); }
 }
