@@ -229,6 +229,32 @@ body.inverted {
   display: none;
 }
 
+/* ─── Pause overlay ───────────────────────────────────────────────────── */
+
+#pause-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: clamp(14px, 3.5vw, 56px);
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+#pause-overlay.visible {
+  opacity: 0.1;
+}
+
+.pause-bar {
+  width: clamp(18px, 4.5vw, 68px);
+  height: clamp(90px, 28vw, 400px);
+  background: currentColor;
+  border-radius: 6px;
+}
+
 /* ─── Alarm shake ─────────────────────────────────────────────────────── */
 
 @keyframes shake {

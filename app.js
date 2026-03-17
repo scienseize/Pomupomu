@@ -51,6 +51,9 @@ function bufferToSeconds() {
 function updateTimerDisplay() {
   const el = document.getElementById('timer-display');
   el.textContent = appState === 'editing' ? bufferToDisplay() : secondsToHMS(remainingSeconds);
+  if (appState === 'running' || appState === 'paused') {
+    document.title = `${secondsToHMS(remainingSeconds)} — Pomupomu`;
+  }
 }
 
 // ─── State machine ────────────────────────────────────────────────────────
@@ -73,6 +76,14 @@ function setState(newState) {
   document.getElementById('edit-hint').classList.toggle('hidden',    newState !== 'editing');
   document.getElementById('confirm-prompt').classList.toggle('hidden', newState !== 'confirm-reset');
   document.getElementById('alarm-hint').classList.toggle('hidden',   newState !== 'alarm');
+
+  // Pause overlay
+  document.getElementById('pause-overlay').classList.toggle('visible', newState === 'paused');
+
+  // Browser tab title — reset when not actively counting
+  if (newState !== 'running' && newState !== 'paused') {
+    document.title = 'Pomupomu';
+  }
 }
 
 // ─── Timer control ────────────────────────────────────────────────────────
@@ -299,6 +310,11 @@ function renderTasks() {
     </li>
   `).join('');
 }
+
+// ─── Document-level click — stop alarm from anywhere ──────────────────────
+document.addEventListener('click', () => {
+  if (alarmActive) stopAlarm();
+});
 
 // ─── Init ─────────────────────────────────────────────────────────────────
 setState('idle');
