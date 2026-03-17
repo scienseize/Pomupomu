@@ -56,6 +56,17 @@
         <p class="sub-hint hidden" id="alarm-hint">
           click or press any key to stop
         </p>
+        <p class="sub-hint hidden" id="ready-hint">
+          esc to reset &nbsp;·&nbsp; click timer to re-edit
+        </p>
+
+        <button class="timer-btn" id="timer-btn" onclick="onTimerBtnClick()">Start</button>
+
+        <div class="quick-btns">
+          <button class="quick-btn" onclick="addMinutes(5)">+5m</button>
+          <button class="quick-btn" onclick="addMinutes(10)">+10m</button>
+          <button class="quick-btn" onclick="addMinutes(30)">+30m</button>
+        </div>
       </section>
     </main>
 

@@ -7,9 +7,11 @@
 }
 
 body {
+  --bg: #000;
+  --fg: #fff;
   font-family: "Inter", sans-serif;
-  background: #000;
-  color: #fff;
+  background: var(--bg);
+  color: var(--fg);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -20,8 +22,10 @@ body {
 }
 
 body.inverted {
-  background: #fff;
-  color: #000;
+  --bg: #fff;
+  --fg: #000;
+  background: var(--bg);
+  color: var(--fg);
 }
 
 /* ─── Layout ──────────────────────────────────────────────────────────── */
@@ -55,23 +59,42 @@ body.inverted {
 
 .task-item {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.55rem;
   font-size: 0.95rem;
   font-weight: 400;
   line-height: 1.4;
 }
 
-.bullet {
+.task-check {
   flex-shrink: 0;
-  opacity: 0.45;
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid currentColor;
+  opacity: 0.4;
   cursor: pointer;
-  padding: 0 2px;
+  position: relative;
   transition: opacity 0.15s;
 }
 
-.bullet:hover {
-  opacity: 0.9;
+.task-check:hover {
+  opacity: 0.8;
+}
+
+.task-check.checked {
+  opacity: 0.25;
+}
+
+.task-check.checked::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: -1px;
+  width: 4px;
+  height: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
 }
 
 .task-text {
@@ -279,6 +302,68 @@ body.inverted {
 
 .sub-hint.hidden {
   display: none;
+}
+
+/* ─── Start / Pause / Resume button ──────────────────────────────────── */
+
+.timer-btn {
+  display: none;
+  margin-top: 2.5rem;
+  padding: 1rem 4rem;
+  border-radius: 100px;
+  border: none;
+  background: var(--fg);
+  color: var(--bg);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.timer-btn.visible {
+  display: inline-block;
+}
+
+.timer-btn:hover {
+  opacity: 0.75;
+  transform: translateY(-2px);
+}
+
+.timer-btn:active {
+  opacity: 0.9;
+  transform: translateY(0);
+}
+
+/* ─── Quick time buttons ──────────────────────────────────────────────── */
+
+.quick-btns {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.quick-btn {
+  background: none;
+  border: 1.5px solid currentColor;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.85rem;
+  border-radius: 100px;
+  cursor: pointer;
+  opacity: 0.3;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.quick-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
 }
 
 /* ─── Pause overlay ───────────────────────────────────────────────────── */
