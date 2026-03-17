@@ -49,6 +49,8 @@ body.inverted {
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .task-item {
@@ -63,11 +65,31 @@ body.inverted {
 .bullet {
   flex-shrink: 0;
   opacity: 0.45;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: opacity 0.15s;
+}
+
+.bullet:hover {
+  opacity: 0.9;
 }
 
 .task-text {
   flex: 1;
-  cursor: pointer;
+  cursor: text;
+}
+
+.task-edit-input {
+  flex: 1;
+  background: none;
+  border: none;
+  border-bottom: 1px solid currentColor;
+  color: inherit;
+  outline: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 2px 0;
+  min-width: 0;
 }
 
 .task-done .task-text {
@@ -90,6 +112,31 @@ body.inverted {
 
 .task-item:hover .delete-btn {
   opacity: 0.4;
+}
+
+.clear-done-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.3;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: opacity 0.15s;
+}
+
+.clear-done-btn.visible {
+  display: block;
+}
+
+.clear-done-btn:hover {
+  opacity: 0.7;
 }
 
 .task-add {
@@ -163,6 +210,11 @@ body.inverted {
 
 .mode-btn:not(.active):hover {
   opacity: 0.55;
+}
+
+.mode-btn:disabled {
+  opacity: 0.15;
+  cursor: not-allowed;
 }
 
 /* Tagline — same font-size as the timer */

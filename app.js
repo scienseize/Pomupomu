@@ -80,6 +80,10 @@ function setState(newState) {
   // Pause overlay
   document.getElementById('pause-overlay').classList.toggle('visible', newState === 'paused');
 
+  // Lock mode tabs while timer is active
+  const timerActive = newState === 'running' || newState === 'paused' || newState === 'confirm-reset';
+  document.querySelectorAll('.mode-btn').forEach(b => { b.disabled = timerActive; });
+
   // Browser tab title — reset when not actively counting
   if (newState !== 'running' && newState !== 'paused') {
     document.title = 'Pomupomu';
@@ -175,6 +179,9 @@ function playBeep() {
 }
 
 function startAlarm() {
+  // Auto-switch mode for the next session
+  setMode(currentMode === 'pomodoro' ? 'break' : 'pomodoro');
+
   alarmActive = true;
   setState('alarm');
   document.querySelector('.layout').classList.add('shaking');
@@ -264,10 +271,11 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ─── Mode ─────────────────────────────────────────────────────────────────
-function setMode(mode, btn) {
+function setMode(mode) {
   currentMode = mode;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  document.querySelectorAll('.mode-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
   document.getElementById('tagline').innerHTML = taglines[mode];
 }
 
@@ -299,16 +307,58 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function clearDone() {
+  tasks = tasks.filter(t => !t.done);
+  renderTasks();
+}
+
+function editTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (!task) return;
+  const span = document.querySelector(`.task-text[data-id="${id}"]`);
+  if (!span) return;
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = task.text;
+  input.className = 'task-edit-input';
+  input.maxLength = 80;
+  span.replaceWith(input);
+  input.focus();
+  input.select();
+
+  let committed = false;
+  function save() {
+    if (committed) return;
+    committed = true;
+    const newText = input.value.trim();
+    if (newText) task.text = newText;
+    renderTasks();
+  }
+  function cancel() {
+    if (committed) return;
+    committed = true;
+    renderTasks();
+  }
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter')  { e.preventDefault(); save(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+  });
+  input.addEventListener('blur', save);
+}
+
 function renderTasks() {
   const list = document.getElementById('task-list');
   const sorted = [...tasks].sort((a, b) => a.done - b.done);
   list.innerHTML = sorted.map(t => `
     <li class="task-item ${t.done ? 'task-done' : ''}">
-      <span class="bullet">•</span>
-      <span class="task-text" onclick="toggleTask(${t.id})">${escapeHtml(t.text)}</span>
+      <span class="bullet" onclick="toggleTask(${t.id})">•</span>
+      <span class="task-text" onclick="editTask(${t.id})" data-id="${t.id}">${escapeHtml(t.text)}</span>
       <button class="delete-btn" onclick="deleteTask(${t.id})" title="Delete">×</button>
     </li>
   `).join('');
+  document.getElementById('clear-done-btn').classList.toggle('visible', tasks.some(t => t.done));
 }
 
 // ─── Document-level click — stop alarm from anywhere ──────────────────────

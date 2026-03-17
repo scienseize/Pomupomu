@@ -18,6 +18,7 @@
       <!-- Left: Tasks -->
       <section class="tasks-col">
         <ul class="task-list" id="task-list"></ul>
+        <button class="clear-done-btn" id="clear-done-btn" onclick="clearDone()">clear done</button>
         <div class="task-add">
           <span class="task-add-icon">+</span>
           <input
@@ -34,10 +35,10 @@
       <!-- Right: Timer -->
       <section class="timer-col">
         <div class="mode-tabs">
-          <button class="mode-btn active" onclick="setMode('pomodoro', this)">
+          <button class="mode-btn active" data-mode="pomodoro" onclick="setMode('pomodoro')">
             Pomodoro
           </button>
-          <button class="mode-btn" onclick="setMode('break', this)">
+          <button class="mode-btn" data-mode="break" onclick="setMode('break')">
             Break
           </button>
         </div>
