@@ -66,7 +66,7 @@ function setState(newState) {
   document.getElementById('alarm-hint').classList.toggle('hidden',    newState !== 'alarm');
 
   const showEndTime = newState === 'ready' || newState === 'running' || newState === 'paused';
-  document.getElementById('end-time-hint').classList.toggle('hidden', !showEndTime);
+  document.getElementById('end-time-hint').style.visibility = showEndTime ? 'visible' : 'hidden';
 
   // Tick the end-time display every second in states where the countdown isn't running
   clearInterval(endTimeTickInterval);

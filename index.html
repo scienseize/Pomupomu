@@ -55,6 +55,9 @@
         <div class="timer-actions">
           <button class="timer-btn" id="timer-btn" onclick="onTimerBtnClick()">Start</button>
           <button class="reset-btn" id="reset-btn" onclick="onResetBtnClick()">Reset</button>
+          <p class="sub-hint end-time-hint" id="end-time-hint" style="visibility:hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.3em"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="end-time-text"></span>
+          </p>
         </div>
 
         <p class="sub-hint confirm hidden" id="confirm-prompt">
@@ -63,9 +66,6 @@
         </p>
         <p class="sub-hint hidden" id="alarm-hint">
           click or press any key to stop
-        </p>
-        <p class="sub-hint hidden" id="end-time-hint">
-          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.3em"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="end-time-text"></span>
         </p>
 
         <div class="quick-btns">

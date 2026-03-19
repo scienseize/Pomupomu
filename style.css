@@ -289,6 +289,12 @@ body.inverted {
   align-items: center;
   gap: 0.85rem;
   margin-bottom: 1.5rem;
+  flex-wrap: nowrap;
+}
+
+.end-time-hint {
+  white-space: nowrap;
+  margin: 0;
 }
 
 .timer-btn {
