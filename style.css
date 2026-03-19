@@ -1046,66 +1046,61 @@ body.inverted {
 
 @media (max-width: 600px) {
   body {
-    height: 100dvh;
-    overflow: hidden;
-    align-items: stretch;
+    min-height: 100dvh;
+    align-items: center;
   }
 
   .layout {
-    flex-direction: column-reverse;
-    padding: 1.25rem 1.25rem 1rem;
-    gap: 1rem;
+    flex-direction: column;
+    padding: 2rem 1.5rem;
+    gap: 1.25rem;
     align-items: stretch;
-    height: 100%;
-    overflow: hidden;
+    width: 100%;
   }
 
-  /* Tasks: fill all remaining space */
-  .tasks-col {
-    flex: 1;
+  .timer-col {
+    order: 0;
+    flex-shrink: 0;
     width: 100%;
-    min-height: 0;
+  }
+
+  .tasks-col {
+    order: 1;
+    flex: 0 0 auto;
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
   }
 
   .task-list {
-    flex: 1;
-    min-height: 0;
-    max-height: none;
+    max-height: 30vh;
     overflow-y: auto;
   }
 
-  /* Timer: compact — shrink fonts and spacing */
-  .timer-col {
-    flex-shrink: 0;
-    width: 100%;
-  }
-
   .mode-tabs-row {
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.75rem;
   }
 
   .tagline {
-    font-size: clamp(20px, 5vw, 32px);
+    font-size: clamp(22px, 6vw, 36px);
   }
 
   #timer-display {
-    font-size: clamp(52px, 13vw, 76px);
-    margin-bottom: 0.5rem;
+    font-size: clamp(56px, 15vw, 90px);
+    margin-bottom: 0.6rem;
   }
 
   .timer-btn {
-    padding: 0.65rem 2.25rem;
+    padding: 0.75rem 2.5rem;
   }
 
   .reset-btn {
-    padding: 0.65rem 1.1rem;
+    padding: 0.75rem 1.25rem;
   }
 
   .timer-actions {
-    margin-bottom: 0.65rem;
+    margin-bottom: 0.75rem;
     flex-wrap: wrap;
     gap: 0.6rem;
   }
