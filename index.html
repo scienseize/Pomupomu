@@ -107,6 +107,14 @@
       </div>
     </div>
 
+    <div id="all-sessions-modal" class="hidden">
+      <div class="stats-header">
+        <span class="stats-title">All Sessions</span>
+        <button class="stats-close" onclick="hideAllSessionsModal()">×</button>
+      </div>
+      <div id="all-sessions-list"></div>
+    </div>
+
     <div id="session-detail-modal" class="hidden">
       <div class="session-detail-box">
         <div class="session-detail-header">
@@ -144,7 +152,10 @@
         <div id="weekly-chart" class="weekly-chart"></div>
       </div>
       <div class="stats-section">
-        <div class="stats-section-title">Recent Sessions</div>
+        <div class="stats-section-header">
+          <div class="stats-section-title">Recent Sessions</div>
+          <button id="see-all-btn" class="see-all-btn" onclick="toggleSeeAll()">See all</button>
+        </div>
         <ul id="recent-sessions" class="recent-list"></ul>
       </div>
     </div>

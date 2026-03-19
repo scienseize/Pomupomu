@@ -591,6 +591,46 @@ body.inverted {
   transform: translateY(-1px);
 }
 
+/* ─── All sessions modal ──────────────────────────────────────────────── */
+
+#all-sessions-modal {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  color: var(--fg);
+  overflow-y: auto;
+  z-index: 150;
+  padding: 3rem 4rem;
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
+}
+
+#all-sessions-modal.hidden {
+  display: none;
+}
+
+#all-sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.all-sessions-date-heading {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.35;
+  margin-bottom: 0.6rem;
+}
+
+@media (max-width: 600px) {
+  #all-sessions-modal {
+    padding: 2rem 1.5rem;
+  }
+}
+
 /* ─── Session detail modal ────────────────────────────────────────────── */
 
 #session-detail-modal {
@@ -782,6 +822,13 @@ body.inverted {
   margin-bottom: 2.5rem;
 }
 
+.stats-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
 .stats-section-title {
   font-size: 0.65rem;
   font-weight: 700;
@@ -789,6 +836,33 @@ body.inverted {
   text-transform: uppercase;
   opacity: 0.35;
   margin-bottom: 1rem;
+}
+
+.stats-section-header .stats-section-title {
+  margin-bottom: 0;
+}
+
+.see-all-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.35;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.15s;
+}
+
+.see-all-btn:hover {
+  opacity: 0.8;
+}
+
+.see-all-btn.hidden {
+  display: none;
 }
 
 /* ─── Consistency grid ────────────────────────────────────────────────── */

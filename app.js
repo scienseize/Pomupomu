@@ -693,41 +693,102 @@ function renderWeeklySnapshot(sessions) {
   });
 }
 
+function buildSessionCard(s, i, subLabel) {
+  const h = Math.floor(s.duration / 3600);
+  const m = Math.floor((s.duration % 3600) / 60);
+  const durStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+  const titleStr = s.title ? escapeHtml(s.title) : 'Untitled';
+  const sub = escapeHtml(subLabel);
+  return `<li class="recent-item" onclick="showSessionDetail(${i})" title="View details">
+    <div class="recent-label">Focus</div>
+    <div class="recent-info">
+      <span class="recent-title">${titleStr}</span>
+      <span class="recent-date">${sub}</span>
+    </div>
+    <div class="recent-dur-badge">${durStr}</div>
+  </li>`;
+}
+
 function renderRecentSessions(sessions) {
   const list = document.getElementById('recent-sessions');
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
 
-  const recent = sessions.slice(0, 5);
-  if (!recent.length) {
+  document.getElementById('see-all-btn').classList.toggle('hidden', sessions.length <= 5);
+
+  if (!sessions.length) {
     list.innerHTML = '<li class="recent-empty">No sessions yet.</li>';
     return;
   }
 
-  list.innerHTML = recent.map((s, i) => {
-    const d = new Date(s.ts);
-    d.setHours(0, 0, 0, 0);
+  list.innerHTML = sessions.slice(0, 5).map((s, i) => {
+    const d = new Date(s.ts); d.setHours(0, 0, 0, 0);
     let dateStr;
     if (d.getTime() === today.getTime()) dateStr = 'Today';
     else if (d.getTime() === yesterday.getTime()) dateStr = 'Yesterday';
     else dateStr = new Date(s.ts).toLocaleDateString([], { month: 'short', day: 'numeric' });
-
-    const h = Math.floor(s.duration / 3600);
-    const m = Math.floor((s.duration % 3600) / 60);
-    const durStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
-    const titleStr = s.title ? escapeHtml(s.title) : 'Untitled';
-
-    return `<li class="recent-item" onclick="showSessionDetail(${i})" title="View details">
-      <div class="recent-label">Focus</div>
-      <div class="recent-info">
-        <span class="recent-title">${titleStr}</span>
-        <span class="recent-date">${dateStr}</span>
-      </div>
-      <div class="recent-dur-badge">${durStr}</div>
-    </li>`;
+    return buildSessionCard(s, i, dateStr);
   }).join('');
+}
+
+function toggleSeeAll() {
+  showAllSessionsModal();
+}
+
+function showAllSessionsModal() {
+  renderAllSessionsModal();
+  document.getElementById('all-sessions-modal').classList.remove('hidden');
+}
+
+function hideAllSessionsModal() {
+  document.getElementById('all-sessions-modal').classList.add('hidden');
+}
+
+function renderAllSessionsModal() {
+  const container = document.getElementById('all-sessions-list');
+  container.innerHTML = '';
+  const sessions = loadedSessions;
+
+  if (!sessions.length) {
+    container.innerHTML = '<p class="recent-empty">No sessions yet.</p>';
+    return;
+  }
+
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+
+  // Group sessions by calendar day (sessions are newest-first)
+  const groups = [];
+  const keyMap = {};
+  sessions.forEach((s, i) => {
+    const d = new Date(s.ts); d.setHours(0, 0, 0, 0);
+    const key = d.getTime();
+    if (!keyMap[key]) {
+      keyMap[key] = { date: d, entries: [] };
+      groups.push(keyMap[key]);
+    }
+    keyMap[key].entries.push({ s, i });
+  });
+
+  groups.forEach(({ date, entries }) => {
+    let label;
+    if (date.getTime() === today.getTime()) label = 'Today';
+    else if (date.getTime() === yesterday.getTime()) label = 'Yesterday';
+    else label = date.toLocaleDateString([], { weekday: 'long', month: 'short', day: 'numeric' });
+
+    const heading = document.createElement('div');
+    heading.className = 'all-sessions-date-heading';
+    heading.textContent = label;
+    container.appendChild(heading);
+
+    const ul = document.createElement('ul');
+    ul.className = 'recent-list';
+    ul.innerHTML = entries.map(({ s, i }) => {
+      const timeStr = new Date(s.ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      return buildSessionCard(s, i, timeStr);
+    }).join('');
+    container.appendChild(ul);
+  });
 }
 
 // ─── Session detail ───────────────────────────────────────────────────────
