@@ -523,13 +523,15 @@ function toggleStats() {
   if (opening) renderStats();
 }
 
+let loadedSessions = [];
+
 function renderStats() {
-  const sessions = JSON.parse(localStorage.getItem('pmp_sessions') || '[]');
-  renderStreak(sessions);
-  renderTotalFocus(sessions);
-  renderConsistencyGrid(sessions);
-  renderWeeklySnapshot(sessions);
-  renderRecentSessions(sessions);
+  loadedSessions = JSON.parse(localStorage.getItem('pmp_sessions') || '[]');
+  renderStreak(loadedSessions);
+  renderTotalFocus(loadedSessions);
+  renderConsistencyGrid(loadedSessions);
+  renderWeeklySnapshot(loadedSessions);
+  renderRecentSessions(loadedSessions);
 }
 
 function renderStreak(sessions) {
@@ -704,7 +706,7 @@ function renderRecentSessions(sessions) {
     return;
   }
 
-  list.innerHTML = recent.map(s => {
+  list.innerHTML = recent.map((s, i) => {
     const d = new Date(s.ts);
     d.setHours(0, 0, 0, 0);
     let dateStr;
@@ -715,10 +717,46 @@ function renderRecentSessions(sessions) {
     const h = Math.floor(s.duration / 3600);
     const m = Math.floor((s.duration % 3600) / 60);
     const durStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
-    const titleStr = s.title ? escapeHtml(s.title) : durStr;
+    const titleStr = s.title ? escapeHtml(s.title) : 'Untitled';
 
-    return `<li class="recent-item"><span class="recent-dur">${titleStr}</span><span class="recent-date">${dateStr}</span></li>`;
+    return `<li class="recent-item" onclick="showSessionDetail(${i})" title="View details">
+      <div class="recent-label">Focus</div>
+      <div class="recent-info">
+        <span class="recent-title">${titleStr}</span>
+        <span class="recent-date">${dateStr}</span>
+      </div>
+      <div class="recent-dur-badge">${durStr}</div>
+    </li>`;
   }).join('');
+}
+
+// ─── Session detail ───────────────────────────────────────────────────────
+function showSessionDetail(i) {
+  const s = loadedSessions[i];
+  if (!s) return;
+
+  const h = Math.floor(s.duration / 3600);
+  const m = Math.floor((s.duration % 3600) / 60);
+  const durStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+
+  document.getElementById('detail-title').textContent = s.title || 'Untitled session';
+  document.getElementById('detail-meta').textContent =
+    `${durStr}  ·  ${new Date(s.ts).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}  ·  ${new Date(s.ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+
+  const descEl = document.getElementById('detail-desc');
+  const descSection = document.getElementById('detail-desc-section');
+  if (s.description) {
+    descEl.textContent = s.description;
+    descSection.classList.remove('hidden');
+  } else {
+    descSection.classList.add('hidden');
+  }
+
+  document.getElementById('session-detail-modal').classList.remove('hidden');
+}
+
+function hideSessionDetail() {
+  document.getElementById('session-detail-modal').classList.add('hidden');
 }
 
 // ─── Document-level click — stop alarm from anywhere ──────────────────────

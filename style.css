@@ -591,6 +591,73 @@ body.inverted {
   transform: translateY(-1px);
 }
 
+/* ─── Session detail modal ────────────────────────────────────────────── */
+
+#session-detail-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--bg) 75%, transparent);
+  z-index: 200;
+  backdrop-filter: blur(4px);
+}
+
+#session-detail-modal.hidden {
+  display: none;
+}
+
+.session-detail-box {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1.5px solid var(--fg);
+  border-radius: 6px;
+  padding: 2rem;
+  width: min(380px, calc(100vw - 3rem));
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.session-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.session-detail-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.session-detail-meta {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  opacity: 0.4;
+}
+
+.session-detail-desc-section {
+  border-top: 1px solid currentColor;
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.session-detail-desc-section.hidden {
+  display: none;
+}
+
+.session-detail-desc {
+  font-size: 0.88rem;
+  font-weight: 400;
+  line-height: 1.6;
+  opacity: 0.75;
+  white-space: pre-wrap;
+}
+
 /* ─── Stats button (in mode-tabs-row) ────────────────────────────────── */
 
 .mode-tabs-row {
@@ -801,31 +868,72 @@ body.inverted {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 0.6rem;
 }
 
 .recent-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 0.7rem 0;
-  border-bottom: 1px solid currentColor;
-  opacity: 0.7;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: opacity 0.15s;
 }
 
-.recent-item:first-child {
-  border-top: 1px solid currentColor;
+.recent-item:hover {
+  opacity: 0.75;
 }
 
-.recent-dur {
-  font-size: 0.9rem;
-  font-weight: 700;
+.recent-label {
+  flex-shrink: 0;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  border-radius: 6px;
+  font-size: 0.62rem;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.7rem;
+}
+
+.recent-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.recent-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .recent-date {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 400;
-  opacity: 0.5;
+  opacity: 0.45;
+}
+
+.recent-dur-badge {
+  flex-shrink: 0;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--fg);
+  color: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -0.01em;
 }
 
 .recent-empty {
