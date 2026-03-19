@@ -7,6 +7,8 @@
 let appState = 'idle';
 let preResetState = null;     // which state we paused from when asking to reset
 let cancelEditTarget = 'idle'; // which state Escape returns to from editing
+let digitBuffer = [0,0,0,0,0,0]; // always 6 digits: [H1,H2,M1,M2,S1,S2]
+let cursorPos = 0;             // active digit index 0–5
 let remainingSeconds = 0;
 let lastSetSeconds = 0;        // last timer value confirmed by the user
 let timerInterval = null;
@@ -34,32 +36,31 @@ function secondsToHMS(s) {
   return `${pad(h)}:${pad(m)}:${pad(sec)}`;
 }
 
-// Parse a freeform time string into seconds.
-// Accepts "H:MM:SS", "MM:SS", "M:SS", or raw digits (treated as right-padded HHMMSS).
-function parseTimerInput(str) {
-  const clean = str.trim();
-  if (!clean) return 0;
-  const parts = clean.split(':').map(p => parseInt(p, 10) || 0);
-  let h = 0, m = 0, s = 0;
-  if (parts.length === 1) {
-    // bare digits: treat as the digit-buffer did — right-pad to HHMMSS
-    const raw = clean.replace(/\D/g, '').padStart(6, '0').slice(-6);
-    h = parseInt(raw.slice(0, 2), 10);
-    m = Math.min(parseInt(raw.slice(2, 4), 10), 59);
-    s = Math.min(parseInt(raw.slice(4, 6), 10), 59);
-  } else if (parts.length === 2) {
-    [m, s] = parts;
-  } else {
-    [h, m, s] = parts.slice(0, 3);
-  }
-  m = Math.min(m, 59);
-  s = Math.min(s, 59);
-  return h * 3600 + m * 60 + s;
+function bufferToSeconds() {
+  const [h1,h2,m1,m2,s1,s2] = digitBuffer;
+  const h = h1*10 + h2;
+  const m = Math.min(m1*10 + m2, 59);
+  const s = Math.min(s1*10 + s2, 59);
+  return h*3600 + m*60 + s;
+}
+
+function secondsToBuffer(secs) {
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  return [Math.floor(h/10), h%10, Math.floor(m/10), m%10, Math.floor(s/10), s%10];
 }
 
 function updateTimerDisplay() {
   const el = document.getElementById('timer-display');
-  el.textContent = secondsToHMS(remainingSeconds);
+  if (appState === 'editing') {
+    const d = digitBuffer;
+    const c = cursorPos;
+    const mk = (i) => `<span class="d${c===i?' cur':''}" data-i="${i}">${d[i]}</span>`;
+    el.innerHTML = mk(0)+mk(1)+'<span class="sep">:</span>'+mk(2)+mk(3)+'<span class="sep">:</span>'+mk(4)+mk(5);
+  } else {
+    el.textContent = secondsToHMS(remainingSeconds);
+  }
   if (appState === 'running' || appState === 'paused') {
     document.title = `${secondsToHMS(remainingSeconds)} — Pomupomu`;
   }
@@ -75,10 +76,8 @@ function setState(newState) {
   const isNormal = newState === 'running' || newState === 'paused' || newState === 'confirm-reset';
   body.classList.toggle('inverted', !isNormal);
 
-  // Show input in editing mode, display otherwise
-  const inputEl = document.getElementById('timer-input');
-  timerEl.style.display = (newState === 'editing') ? 'none' : '';
-  inputEl.classList.toggle('visible', newState === 'editing');
+  // Editing cursor
+  timerEl.classList.toggle('editing', newState === 'editing');
 
   // Timer opacity
   timerEl.style.opacity = (newState === 'paused' || newState === 'confirm-reset') ? '0.45' : '1';
@@ -131,23 +130,18 @@ function startCountdown() {
 
 function enterEditMode(prefill = false, initialChar = null) {
   cancelEditTarget = (appState === 'done' || appState === 'ready') ? appState : 'idle';
-  setState('editing');
-  const input = document.getElementById('timer-input');
+  digitBuffer = (prefill && lastSetSeconds > 0) ? secondsToBuffer(lastSetSeconds) : [0,0,0,0,0,0];
+  cursorPos = 0;
   if (initialChar !== null) {
-    input.value = initialChar;
-    input.setSelectionRange(1, 1);
-  } else if (prefill && lastSetSeconds > 0) {
-    input.value = secondsToHMS(lastSetSeconds);
-    input.select();
-  } else {
-    input.value = '00:00:00';
-    input.select();
+    digitBuffer[0] = parseInt(initialChar);
+    cursorPos = 1;
   }
-  input.focus();
+  setState('editing');
+  updateTimerDisplay();
 }
 
 function confirmEdit() {
-  const secs = parseTimerInput(document.getElementById('timer-input').value);
+  const secs = bufferToSeconds();
   if (secs === 0) {
     remainingSeconds = 0;
     setState('idle');
@@ -161,6 +155,7 @@ function confirmEdit() {
 }
 
 function cancelEdit() {
+  digitBuffer = [0,0,0,0,0,0];
   if (cancelEditTarget === 'done' || cancelEditTarget === 'ready') {
     remainingSeconds = lastSetSeconds;
     setState(cancelEditTarget);
@@ -245,8 +240,19 @@ function stopAlarm() {
 }
 
 // ─── Click handler ────────────────────────────────────────────────────────
-function onTimerClick() {
-  if (alarmActive)            { stopAlarm(); return; }
+function setCursorPos(i) {
+  cursorPos = i;
+  updateTimerDisplay();
+}
+
+function onTimerClick(e) {
+  if (alarmActive)              { stopAlarm(); return; }
+  if (appState === 'editing') {
+    // Clicking a digit span repositions the cursor
+    const i = e && e.target.getAttribute('data-i');
+    if (i !== null && i !== undefined) setCursorPos(parseInt(i));
+    return;
+  }
   if (appState === 'running') { clearInterval(timerInterval); setState('paused'); return; }
   if (appState === 'paused')  { setState('running'); startCountdown(); return; }
   if (appState === 'ready')   { enterEditMode(true); return; }
@@ -277,11 +283,33 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  // Let the task input and timer input handle their own keys
+  // Let the task input handle its own keys
   if (document.activeElement === document.getElementById('task-input')) return;
-  if (document.activeElement === document.getElementById('timer-input')) return;
 
-  if (appState === 'ready') {
+  if (appState === 'editing') {
+    if (e.key >= '0' && e.key <= '9') {
+      digitBuffer[cursorPos] = parseInt(e.key);
+      if (cursorPos < 5) cursorPos++;
+      updateTimerDisplay();
+    } else if (e.key === 'Backspace') {
+      e.preventDefault();
+      digitBuffer[cursorPos] = 0;
+      if (cursorPos > 0) cursorPos--;
+      updateTimerDisplay();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      if (cursorPos > 0) { cursorPos--; updateTimerDisplay(); }
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      if (cursorPos < 5) { cursorPos++; updateTimerDisplay(); }
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault(); confirmEdit();
+    } else if (e.key === 'Escape') {
+      cancelEdit();
+    }
+    // All other keys (letters, symbols) are silently ignored
+
+  } else if (appState === 'ready') {
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault(); setState('running'); startCountdown();
     } else if (e.key === 'Escape') {
@@ -316,7 +344,7 @@ function addMinutes(mins) {
   const add = mins * 60;
 
   if (appState === 'editing') {
-    remainingSeconds = parseTimerInput(document.getElementById('timer-input').value) + add;
+    remainingSeconds = bufferToSeconds() + add;
     lastSetSeconds = remainingSeconds;
     setState('ready');
     updateTimerDisplay();
@@ -430,16 +458,6 @@ function renderTasks() {
   `).join('');
   document.getElementById('clear-done-btn').classList.toggle('visible', tasks.some(t => t.done));
 }
-
-// ─── Timer input — Enter/Space confirm, Escape cancel, blur cancel ─────────
-document.getElementById('timer-input').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); confirmEdit(); }
-  else if (e.key === 'Escape')            { e.preventDefault(); cancelEdit(); }
-});
-
-document.getElementById('timer-input').addEventListener('blur', () => {
-  if (appState === 'editing') cancelEdit();
-});
 
 // ─── Document-level click — stop alarm from anywhere ──────────────────────
 document.addEventListener('click', () => {

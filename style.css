@@ -266,28 +266,15 @@ body.inverted {
   margin-bottom: 1rem;
 }
 
-/* Timer input (editing mode) */
-#timer-input {
-  display: none;
-  font-size: clamp(64px, 10vw, 140px);
-  font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  font-family: inherit;
-  font-variant-numeric: tabular-nums;
-  background: none;
-  border: none;
-  color: inherit;
-  outline: none;
-  padding: 0;
-  margin: 0;
-  margin-bottom: 1rem;
-  width: 8ch;
-  caret-color: currentColor;
+/* Individual digit cells while editing */
+#timer-display.editing .d {
+  cursor: pointer;
 }
 
-#timer-input.visible {
-  display: block;
+#timer-display.editing .d.cur {
+  text-decoration: underline;
+  text-underline-offset: 0.08em;
+  text-decoration-thickness: 0.05em;
 }
 
 /* Sub-hints (edit, confirm, alarm) */
