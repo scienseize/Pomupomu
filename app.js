@@ -662,7 +662,7 @@ function renderWeeklySnapshot(sessions) {
     values.push(dayMinutes[d.getTime()] || 0);
   }
 
-  const maxVal = Math.max(...values, 1);
+  const maxVal = 960; // 16 hours in minutes
 
   dayNames.forEach((name, i) => {
     const col = document.createElement('div');
