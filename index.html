@@ -34,12 +34,18 @@
 
       <!-- Right: Timer -->
       <section class="timer-col">
-        <div class="mode-tabs">
-          <button class="mode-btn active" data-mode="pomodoro" onclick="setMode('pomodoro')">
-            Pomodoro
-          </button>
-          <button class="mode-btn" data-mode="break" onclick="setMode('break')">
-            Break
+        <div class="mode-tabs-row">
+          <div class="mode-tabs">
+            <button class="mode-btn active" data-mode="pomodoro" onclick="setMode('pomodoro')">
+              Pomodoro
+            </button>
+            <button class="mode-btn" data-mode="break" onclick="setMode('break')">
+              Break
+            </button>
+          </div>
+          <button id="stats-btn" onclick="toggleStats()" title="Stats">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="14" width="4" height="8" rx="1"/><rect x="10" y="8" width="4" height="14" rx="1"/><rect x="18" y="2" width="4" height="20" rx="1"/></svg>
+            Stats
           </button>
         </div>
 
@@ -75,6 +81,35 @@
         </div>
       </section>
     </main>
+
+    <div id="stats-panel" class="hidden">
+      <div class="stats-header">
+        <span class="stats-title">Stats</span>
+        <button class="stats-close" onclick="toggleStats()">×</button>
+      </div>
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-streak">0</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-total">0m</div>
+          <div class="stat-label">Total Focus</div>
+        </div>
+      </div>
+      <div class="stats-section">
+        <div class="stats-section-title">Consistency (16 weeks)</div>
+        <div id="consistency-grid"></div>
+      </div>
+      <div class="stats-section">
+        <div class="stats-section-title">This Week</div>
+        <div id="weekly-chart" class="weekly-chart"></div>
+      </div>
+      <div class="stats-section">
+        <div class="stats-section-title">Recent Sessions</div>
+        <ul id="recent-sessions" class="recent-list"></ul>
+      </div>
+    </div>
 
     <div id="pause-overlay">
       <div class="pause-bar"></div>

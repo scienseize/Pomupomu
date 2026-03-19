@@ -209,7 +209,6 @@ body.inverted {
 .mode-tabs {
   display: flex;
   gap: 1.25rem;
-  margin-bottom: 1.5rem;
 }
 
 .mode-btn {
@@ -467,6 +466,248 @@ body.inverted {
   animation: shake 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
 }
 
+/* ─── Stats button (in mode-tabs-row) ────────────────────────────────── */
+
+.mode-tabs-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.mode-tabs-row .mode-tabs {
+  margin-bottom: 0;
+}
+
+#stats-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.25;
+  transition: opacity 0.2s;
+  padding: 0;
+}
+
+#stats-btn:hover {
+  opacity: 0.7;
+}
+
+/* ─── Stats panel (fixed overlay) ────────────────────────────────────── */
+
+#stats-panel {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  color: var(--fg);
+  overflow-y: auto;
+  z-index: 100;
+  padding: 3rem 4rem;
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
+}
+
+#stats-panel.hidden {
+  display: none;
+}
+
+.stats-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+}
+
+.stats-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.stats-close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.35;
+  transition: opacity 0.15s;
+  padding: 0;
+}
+
+.stats-close:hover {
+  opacity: 0.8;
+}
+
+/* ─── Stat cards ──────────────────────────────────────────────────────── */
+
+.stats-cards {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 3rem;
+}
+
+.stat-card {
+  flex: 1;
+  border: 1.5px solid currentColor;
+  border-radius: 4px;
+  padding: 1.5rem 2rem;
+  opacity: 0.9;
+}
+
+.stat-value {
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.4;
+}
+
+/* ─── Stats sections ──────────────────────────────────────────────────── */
+
+.stats-section {
+  margin-bottom: 2.5rem;
+}
+
+.stats-section-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.35;
+  margin-bottom: 1rem;
+}
+
+/* ─── Consistency grid ────────────────────────────────────────────────── */
+
+.grid-cells {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  grid-template-rows: repeat(7, 10px);
+  gap: 3px;
+  margin-bottom: 5px;
+}
+
+.grid-cell {
+  background: var(--fg);
+  border-radius: 2px;
+}
+
+.grid-months {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  font-size: 0.58rem;
+  opacity: 0.4;
+  letter-spacing: 0.03em;
+}
+
+/* ─── Weekly snapshot bars ────────────────────────────────────────────── */
+
+.weekly-chart {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+  height: 100px;
+}
+
+.week-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  height: 100%;
+}
+
+.week-val {
+  font-size: 0.58rem;
+  font-weight: 600;
+  opacity: 0.5;
+  min-height: 0.9em;
+}
+
+.week-bar-wrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.week-bar {
+  width: 100%;
+  background: var(--fg);
+  border-radius: 2px 2px 0 0;
+  min-height: 0;
+  transition: height 0.3s ease;
+}
+
+.week-label {
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  opacity: 0.4;
+  text-transform: uppercase;
+}
+
+/* ─── Recent sessions list ────────────────────────────────────────────── */
+
+.recent-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.recent-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid currentColor;
+  opacity: 0.7;
+}
+
+.recent-item:first-child {
+  border-top: 1px solid currentColor;
+}
+
+.recent-dur {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.recent-date {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.5;
+}
+
+.recent-empty {
+  font-size: 0.85rem;
+  opacity: 0.3;
+}
+
 /* ─── Responsive ──────────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
@@ -480,5 +721,18 @@ body.inverted {
   .tasks-col {
     flex: 0 0 auto;
     width: 100%;
+  }
+
+  #stats-panel {
+    padding: 2rem 1.5rem;
+  }
+
+  .stats-cards {
+    flex-direction: column;
+  }
+
+  .grid-cells {
+    grid-template-rows: repeat(7, 8px);
+    gap: 2px;
   }
 }

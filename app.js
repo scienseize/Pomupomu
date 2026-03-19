@@ -217,6 +217,7 @@ function playBeep() {
 }
 
 function startAlarm() {
+  recordSession(); // capture before mode flips
   // Auto-switch mode for the next session
   setMode(currentMode === 'pomodoro' ? 'break' : 'pomodoro');
 
@@ -462,6 +463,218 @@ function renderTasks() {
     </li>
   `).join('');
   document.getElementById('clear-done-btn').classList.toggle('visible', tasks.some(t => t.done));
+}
+
+// ─── Stats ────────────────────────────────────────────────────────────────
+function recordSession() {
+  if (currentMode !== 'pomodoro') return;
+  const sessions = JSON.parse(localStorage.getItem('pmp_sessions') || '[]');
+  sessions.unshift({ ts: Date.now(), duration: lastSetSeconds });
+  localStorage.setItem('pmp_sessions', JSON.stringify(sessions));
+}
+
+function toggleStats() {
+  const panel = document.getElementById('stats-panel');
+  const opening = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden', !opening);
+  if (opening) renderStats();
+}
+
+function renderStats() {
+  const sessions = JSON.parse(localStorage.getItem('pmp_sessions') || '[]');
+  renderStreak(sessions);
+  renderTotalFocus(sessions);
+  renderConsistencyGrid(sessions);
+  renderWeeklySnapshot(sessions);
+  renderRecentSessions(sessions);
+}
+
+function renderStreak(sessions) {
+  const el = document.getElementById('stat-streak');
+  if (!sessions.length) { el.textContent = '0'; return; }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const daySet = new Set(sessions.map(s => {
+    const d = new Date(s.ts);
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  }));
+
+  let streak = 0;
+  const check = new Date(today);
+  if (!daySet.has(check.getTime())) {
+    check.setDate(check.getDate() - 1);
+    if (!daySet.has(check.getTime())) { el.textContent = '0'; return; }
+  }
+  while (daySet.has(check.getTime())) {
+    streak++;
+    check.setDate(check.getDate() - 1);
+  }
+  el.textContent = streak;
+}
+
+function renderTotalFocus(sessions) {
+  const el = document.getElementById('stat-total');
+  const totalSecs = sessions.reduce((sum, s) => sum + s.duration, 0);
+  const h = Math.floor(totalSecs / 3600);
+  const m = Math.floor((totalSecs % 3600) / 60);
+  el.textContent = h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
+function renderConsistencyGrid(sessions) {
+  const grid = document.getElementById('consistency-grid');
+  grid.innerHTML = '';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dayMinutes = {};
+  sessions.forEach(s => {
+    const d = new Date(s.ts);
+    d.setHours(0, 0, 0, 0);
+    dayMinutes[d.getTime()] = (dayMinutes[d.getTime()] || 0) + Math.floor(s.duration / 60);
+  });
+
+  // Find most recent Monday
+  const dow = today.getDay();
+  const daysToMon = dow === 0 ? 6 : dow - 1;
+  const thisMon = new Date(today);
+  thisMon.setDate(today.getDate() - daysToMon);
+
+  const startDate = new Date(thisMon);
+  startDate.setDate(thisMon.getDate() - 15 * 7); // 16 weeks total
+
+  const cap = 120;
+  const WEEKS = 16;
+  const DAYS = 7;
+
+  const cellsEl = document.createElement('div');
+  cellsEl.className = 'grid-cells';
+
+  const monthMap = {};
+
+  for (let week = 0; week < WEEKS; week++) {
+    for (let day = 0; day < DAYS; day++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + week * 7 + day);
+
+      const key = date.getTime();
+      const mins = dayMinutes[key] || 0;
+      const opacity = mins > 0 ? Math.max(0.12, Math.min(1, mins / cap)) : 0.06;
+
+      const cell = document.createElement('span');
+      cell.className = 'grid-cell';
+      cell.style.opacity = opacity;
+      cell.style.gridRow = day + 1;
+      cell.style.gridColumn = week + 1;
+      cell.title = `${date.toLocaleDateString([], { month: 'short', day: 'numeric' })}: ${mins}m`;
+      cellsEl.appendChild(cell);
+
+      if (day === 0) {
+        const mk = `${date.getFullYear()}-${date.getMonth()}`;
+        if (!monthMap[mk]) monthMap[mk] = { week, name: date.toLocaleDateString([], { month: 'short' }) };
+      }
+    }
+  }
+
+  const monthsEl = document.createElement('div');
+  monthsEl.className = 'grid-months';
+  Object.values(monthMap).forEach(({ week, name }) => {
+    const label = document.createElement('span');
+    label.className = 'grid-month-label';
+    label.textContent = name;
+    label.style.gridColumn = week + 1;
+    monthsEl.appendChild(label);
+  });
+
+  grid.appendChild(cellsEl);
+  grid.appendChild(monthsEl);
+}
+
+function renderWeeklySnapshot(sessions) {
+  const container = document.getElementById('weekly-chart');
+  container.innerHTML = '';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dow = today.getDay();
+  const daysToMon = dow === 0 ? 6 : dow - 1;
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - daysToMon);
+
+  const dayMinutes = {};
+  sessions.forEach(s => {
+    const d = new Date(s.ts);
+    d.setHours(0, 0, 0, 0);
+    dayMinutes[d.getTime()] = (dayMinutes[d.getTime()] || 0) + Math.floor(s.duration / 60);
+  });
+
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const values = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    values.push(dayMinutes[d.getTime()] || 0);
+  }
+
+  const maxVal = Math.max(...values, 1);
+
+  dayNames.forEach((name, i) => {
+    const col = document.createElement('div');
+    col.className = 'week-col';
+
+    const val = document.createElement('div');
+    val.className = 'week-val';
+    val.textContent = values[i] > 0 ? `${values[i]}m` : '';
+
+    const barWrap = document.createElement('div');
+    barWrap.className = 'week-bar-wrap';
+
+    const bar = document.createElement('div');
+    bar.className = 'week-bar';
+    bar.style.height = values[i] > 0 ? `${Math.max(4, (values[i] / maxVal) * 100)}%` : '0%';
+
+    const label = document.createElement('div');
+    label.className = 'week-label';
+    label.textContent = name;
+
+    barWrap.appendChild(bar);
+    col.appendChild(val);
+    col.appendChild(barWrap);
+    col.appendChild(label);
+    container.appendChild(col);
+  });
+}
+
+function renderRecentSessions(sessions) {
+  const list = document.getElementById('recent-sessions');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  const recent = sessions.slice(0, 5);
+  if (!recent.length) {
+    list.innerHTML = '<li class="recent-empty">No sessions yet.</li>';
+    return;
+  }
+
+  list.innerHTML = recent.map(s => {
+    const d = new Date(s.ts);
+    d.setHours(0, 0, 0, 0);
+    let dateStr;
+    if (d.getTime() === today.getTime()) dateStr = 'Today';
+    else if (d.getTime() === yesterday.getTime()) dateStr = 'Yesterday';
+    else dateStr = new Date(s.ts).toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+    const h = Math.floor(s.duration / 3600);
+    const m = Math.floor((s.duration % 3600) / 60);
+    const durStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+
+    return `<li class="recent-item"><span class="recent-dur">${durStr}</span><span class="recent-date">${dateStr}</span></li>`;
+  }).join('');
 }
 
 // ─── Document-level click — stop alarm from anywhere ──────────────────────
