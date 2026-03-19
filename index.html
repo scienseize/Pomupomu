@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pomupomu</title>
+
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,7 +20,13 @@
       <!-- Left: Tasks -->
       <section class="tasks-col">
         <ul class="task-list" id="task-list"></ul>
-        <button class="clear-done-btn" id="clear-done-btn" onclick="clearDone()">clear done</button>
+        <button
+          class="clear-done-btn"
+          id="clear-done-btn"
+          onclick="clearDone()"
+        >
+          clear done
+        </button>
         <div class="task-add">
           <span class="task-add-icon">+</span>
           <input
@@ -36,15 +44,33 @@
       <section class="timer-col">
         <div class="mode-tabs-row">
           <div class="mode-tabs">
-            <button class="mode-btn active" data-mode="pomodoro" onclick="setMode('pomodoro')">
+            <button
+              class="mode-btn active"
+              data-mode="pomodoro"
+              onclick="setMode('pomodoro')"
+            >
               Pomodoro
             </button>
-            <button class="mode-btn" data-mode="break" onclick="setMode('break')">
+            <button
+              class="mode-btn"
+              data-mode="break"
+              onclick="setMode('break')"
+            >
               Break
             </button>
           </div>
           <button id="stats-btn" onclick="toggleStats()" title="Stats">
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="14" width="4" height="8" rx="1"/><rect x="10" y="8" width="4" height="14" rx="1"/><rect x="18" y="2" width="4" height="20" rx="1"/></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <rect x="2" y="14" width="4" height="8" rx="1" />
+              <rect x="10" y="8" width="4" height="14" rx="1" />
+              <rect x="18" y="2" width="4" height="20" rx="1" />
+            </svg>
             Stats
           </button>
         </div>
@@ -53,10 +79,32 @@
         <div id="timer-display" onclick="onTimerClick()">00:00:00</div>
 
         <div class="timer-actions">
-          <button class="timer-btn" id="timer-btn" onclick="onTimerBtnClick()">Start</button>
-          <button class="reset-btn" id="reset-btn" onclick="onResetBtnClick()">Reset</button>
-          <p class="sub-hint end-time-hint" id="end-time-hint" style="visibility:hidden">
-            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.3em"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="end-time-text"></span>
+          <button class="timer-btn" id="timer-btn" onclick="onTimerBtnClick()">
+            Start
+          </button>
+          <button class="reset-btn" id="reset-btn" onclick="onResetBtnClick()">
+            Reset
+          </button>
+          <p
+            class="sub-hint end-time-hint"
+            id="end-time-hint"
+            style="visibility: hidden"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              style="vertical-align: middle; margin-right: 0.3em"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" /></svg
+            ><span id="end-time-text"></span>
           </p>
         </div>
 
@@ -83,7 +131,9 @@
       <div class="session-modal-box">
         <div class="session-modal-header">
           <span class="session-modal-heading">Session complete</span>
-          <button class="session-modal-skip" onclick="skipSessionModal()">Skip</button>
+          <button class="session-modal-skip" onclick="skipSessionModal()">
+            Skip
+          </button>
         </div>
         <input
           id="session-title-input"
@@ -100,7 +150,9 @@
           rows="3"
           onkeydown="handleSessionDescKey(event)"
         ></textarea>
-        <button class="session-modal-save" onclick="saveSessionModal()">Save</button>
+        <button class="session-modal-save" onclick="saveSessionModal()">
+          Save
+        </button>
       </div>
     </div>
 
@@ -119,7 +171,10 @@
           <button class="stats-close" onclick="hideSessionDetail()">×</button>
         </div>
         <p class="session-detail-meta" id="detail-meta"></p>
-        <div id="detail-desc-section" class="session-detail-desc-section hidden">
+        <div
+          id="detail-desc-section"
+          class="session-detail-desc-section hidden"
+        >
           <p class="session-detail-desc" id="detail-desc"></p>
         </div>
       </div>
@@ -151,7 +206,9 @@
       <div class="stats-section">
         <div class="stats-section-header">
           <div class="stats-section-title">Recent Sessions</div>
-          <button id="see-all-btn" class="see-all-btn" onclick="toggleSeeAll()">See all</button>
+          <button id="see-all-btn" class="see-all-btn" onclick="toggleSeeAll()">
+            See all
+          </button>
         </div>
         <ul id="recent-sessions" class="recent-list"></ul>
       </div>
