@@ -266,15 +266,15 @@ body.inverted {
   margin-bottom: 1rem;
 }
 
-/* Individual digit cells while editing */
-#timer-display.editing .d {
-  cursor: pointer;
+/* Individual digit cells */
+#timer-display .d {
+  cursor: text;
 }
 
+/* Highlight the active digit */
 #timer-display.editing .d.cur {
-  text-decoration: underline;
-  text-underline-offset: 0.08em;
-  text-decoration-thickness: 0.05em;
+  background: var(--fg);
+  color: var(--bg);
 }
 
 /* Sub-hints (edit, confirm, alarm) */

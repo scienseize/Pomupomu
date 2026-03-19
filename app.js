@@ -53,14 +53,11 @@ function secondsToBuffer(secs) {
 
 function updateTimerDisplay() {
   const el = document.getElementById('timer-display');
-  if (appState === 'editing') {
-    const d = digitBuffer;
-    const c = cursorPos;
-    const mk = (i) => `<span class="d${c===i?' cur':''}" data-i="${i}">${d[i]}</span>`;
-    el.innerHTML = mk(0)+mk(1)+'<span class="sep">:</span>'+mk(2)+mk(3)+'<span class="sep">:</span>'+mk(4)+mk(5);
-  } else {
-    el.textContent = secondsToHMS(remainingSeconds);
-  }
+  const isEditing = appState === 'editing';
+  const d = isEditing ? digitBuffer : secondsToBuffer(remainingSeconds);
+  const c = cursorPos;
+  const mk = (i) => `<span class="d${isEditing && c===i?' cur':''}" data-i="${i}">${d[i]}</span>`;
+  el.innerHTML = mk(0)+mk(1)+'<span class="sep">:</span>'+mk(2)+mk(3)+'<span class="sep">:</span>'+mk(4)+mk(5);
   if (appState === 'running' || appState === 'paused') {
     document.title = `${secondsToHMS(remainingSeconds)} — Pomupomu`;
   }
@@ -128,13 +125,13 @@ function startCountdown() {
   }, 1000);
 }
 
-function enterEditMode(prefill = false, initialChar = null) {
+function enterEditMode(prefill = false, initialChar = null, startPos = 0) {
   cancelEditTarget = (appState === 'done' || appState === 'ready') ? appState : 'idle';
   digitBuffer = (prefill && lastSetSeconds > 0) ? secondsToBuffer(lastSetSeconds) : [0,0,0,0,0,0];
-  cursorPos = 0;
+  cursorPos = startPos;
   if (initialChar !== null) {
-    digitBuffer[0] = parseInt(initialChar);
-    cursorPos = 1;
+    digitBuffer[cursorPos] = parseInt(initialChar);
+    if (cursorPos < 5) cursorPos++;
   }
   setState('editing');
   updateTimerDisplay();
@@ -246,18 +243,18 @@ function setCursorPos(i) {
 }
 
 function onTimerClick(e) {
-  if (alarmActive)              { stopAlarm(); return; }
-  if (appState === 'editing') {
-    // Clicking a digit span repositions the cursor
-    const i = e && e.target.getAttribute('data-i');
-    if (i !== null && i !== undefined) setCursorPos(parseInt(i));
-    return;
-  }
+  if (alarmActive) { stopAlarm(); return; }
+
+  // Resolve which digit was clicked (works in any state since spans are always rendered)
+  const rawI = e && e.target.getAttribute('data-i');
+  const clickedDigit = rawI !== null && rawI !== undefined ? parseInt(rawI) : 0;
+
+  if (appState === 'editing') { setCursorPos(clickedDigit); return; }
   if (appState === 'running') { clearInterval(timerInterval); setState('paused'); return; }
   if (appState === 'paused')  { setState('running'); startCountdown(); return; }
-  if (appState === 'ready')   { enterEditMode(true); return; }
-  if (appState === 'idle')    { enterEditMode(false); return; }
-  if (appState === 'done')    { enterEditMode(true); }
+  if (appState === 'ready')   { enterEditMode(true,  null, clickedDigit); return; }
+  if (appState === 'idle')    { enterEditMode(false, null, clickedDigit); return; }
+  if (appState === 'done')    { enterEditMode(true,  null, clickedDigit); }
 }
 
 function onTimerBtnClick() {
