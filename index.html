@@ -82,6 +82,31 @@
       </section>
     </main>
 
+    <div id="session-modal" class="hidden">
+      <div class="session-modal-box">
+        <div class="session-modal-header">
+          <span class="session-modal-heading">Session complete</span>
+          <button class="session-modal-skip" onclick="skipSessionModal()">Skip</button>
+        </div>
+        <input
+          id="session-title-input"
+          type="text"
+          maxlength="20"
+          placeholder="Title (max 20 chars)"
+          class="session-field-input"
+          onkeydown="handleSessionTitleKey(event)"
+        />
+        <textarea
+          id="session-desc-input"
+          placeholder="Notes..."
+          class="session-field-textarea"
+          rows="3"
+          onkeydown="handleSessionDescKey(event)"
+        ></textarea>
+        <button class="session-modal-save" onclick="saveSessionModal()">Save</button>
+      </div>
+    </div>
+
     <div id="stats-panel" class="hidden">
       <div class="stats-header">
         <span class="stats-title">Stats</span>

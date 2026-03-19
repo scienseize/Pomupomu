@@ -20,6 +20,7 @@ let nextId = 1;
 let alarmActive = false;
 let alarmBeepInterval = null;
 let audioCtx = null;
+let pendingSessionDuration = 0; // set in startAlarm if pomodoro; cleared after save/skip
 
 const taglines = {
   pomodoro: `it's time to <em>focus.</em>`,
@@ -217,7 +218,8 @@ function playBeep() {
 }
 
 function startAlarm() {
-  recordSession(); // capture before mode flips
+  // Capture pomodoro session before mode flips
+  if (currentMode === 'pomodoro') pendingSessionDuration = lastSetSeconds;
   // Auto-switch mode for the next session
   setMode(currentMode === 'pomodoro' ? 'break' : 'pomodoro');
 
@@ -243,6 +245,7 @@ function stopAlarm() {
   remainingSeconds = lastSetSeconds;
   setState('done');
   updateTimerDisplay();
+  if (pendingSessionDuration > 0) showSessionModal();
 }
 
 // ─── Click handler ────────────────────────────────────────────────────────
@@ -282,6 +285,9 @@ function onResetBtnClick() {
 
 // ─── Keyboard ─────────────────────────────────────────────────────────────
 document.addEventListener('keydown', (e) => {
+  // Let the session modal handle its own keys
+  if (!document.getElementById('session-modal').classList.contains('hidden')) return;
+
   // Alarm takes highest priority
   if (alarmActive) {
     stopAlarm();
@@ -465,14 +471,51 @@ function renderTasks() {
   document.getElementById('clear-done-btn').classList.toggle('visible', tasks.some(t => t.done));
 }
 
-// ─── Stats ────────────────────────────────────────────────────────────────
-function recordSession() {
-  if (currentMode !== 'pomodoro') return;
+// ─── Session modal ────────────────────────────────────────────────────────
+function handleSessionTitleKey(e) {
+  if (e.key === 'Enter') { e.preventDefault(); document.getElementById('session-desc-input').focus(); }
+  if (e.key === 'Escape') { e.preventDefault(); skipSessionModal(); }
+}
+
+function handleSessionDescKey(e) {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); saveSessionModal(); }
+  if (e.key === 'Escape') { e.preventDefault(); skipSessionModal(); }
+}
+
+function showSessionModal() {
+  const modal = document.getElementById('session-modal');
+  modal.classList.remove('hidden');
+  const titleInput = document.getElementById('session-title-input');
+  titleInput.value = '';
+  document.getElementById('session-desc-input').value = '';
+  titleInput.focus();
+}
+
+function hideSessionModal() {
+  document.getElementById('session-modal').classList.add('hidden');
+  pendingSessionDuration = 0;
+}
+
+function saveSessionModal() {
+  const title = document.getElementById('session-title-input').value.trim();
+  const desc = document.getElementById('session-desc-input').value.trim();
+  recordSession(title, desc);
+  hideSessionModal();
+}
+
+function skipSessionModal() {
+  recordSession('', '');
+  hideSessionModal();
+}
+
+function recordSession(title, desc) {
+  if (!pendingSessionDuration) return;
   const sessions = JSON.parse(localStorage.getItem('pmp_sessions') || '[]');
-  sessions.unshift({ ts: Date.now(), duration: lastSetSeconds });
+  sessions.unshift({ ts: Date.now(), duration: pendingSessionDuration, title, description: desc });
   localStorage.setItem('pmp_sessions', JSON.stringify(sessions));
 }
 
+// ─── Stats ────────────────────────────────────────────────────────────────
 function toggleStats() {
   const panel = document.getElementById('stats-panel');
   const opening = panel.classList.contains('hidden');
@@ -672,8 +715,9 @@ function renderRecentSessions(sessions) {
     const h = Math.floor(s.duration / 3600);
     const m = Math.floor((s.duration % 3600) / 60);
     const durStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+    const titleStr = s.title ? escapeHtml(s.title) : durStr;
 
-    return `<li class="recent-item"><span class="recent-dur">${durStr}</span><span class="recent-date">${dateStr}</span></li>`;
+    return `<li class="recent-item"><span class="recent-dur">${titleStr}</span><span class="recent-date">${dateStr}</span></li>`;
   }).join('');
 }
 

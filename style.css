@@ -466,6 +466,131 @@ body.inverted {
   animation: shake 0.7s cubic-bezier(0.36, 0.07, 0.19, 0.97) infinite;
 }
 
+/* ─── Session modal ───────────────────────────────────────────────────── */
+
+#session-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--bg) 75%, transparent);
+  z-index: 200;
+  backdrop-filter: blur(4px);
+}
+
+#session-modal.hidden {
+  display: none;
+}
+
+.session-modal-box {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1.5px solid var(--fg);
+  border-radius: 6px;
+  padding: 2rem;
+  width: min(380px, calc(100vw - 3rem));
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.session-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.session-modal-heading {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.45;
+}
+
+.session-modal-skip {
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.3;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.15s;
+}
+
+.session-modal-skip:hover {
+  opacity: 0.7;
+}
+
+.session-field-input {
+  background: none;
+  border: none;
+  border-bottom: 1.5px solid currentColor;
+  color: inherit;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 600;
+  outline: none;
+  padding: 0.25rem 0;
+  width: 100%;
+}
+
+.session-field-input::placeholder {
+  color: inherit;
+  opacity: 0.25;
+  font-weight: 400;
+}
+
+.session-field-textarea {
+  background: none;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  padding: 0.6rem 0.75rem;
+  resize: vertical;
+  width: 100%;
+  opacity: 0.7;
+}
+
+.session-field-textarea::placeholder {
+  color: inherit;
+  opacity: 0.35;
+}
+
+.session-field-textarea:focus {
+  opacity: 1;
+}
+
+.session-modal-save {
+  align-self: flex-end;
+  background: var(--fg);
+  border: none;
+  border-radius: 100px;
+  color: var(--bg);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  padding: 0.65rem 2rem;
+  text-transform: uppercase;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.session-modal-save:hover {
+  opacity: 0.75;
+  transform: translateY(-1px);
+}
+
 /* ─── Stats button (in mode-tabs-row) ────────────────────────────────── */
 
 .mode-tabs-row {
