@@ -272,6 +272,18 @@ function setMode(mode) {
 }
 
 // ─── Tasks ────────────────────────────────────────────────────────────────
+function saveTasks() {
+  localStorage.setItem('pmp_tasks', JSON.stringify({ tasks, nextId }));
+}
+
+function loadTasks() {
+  const stored = JSON.parse(localStorage.getItem('pmp_tasks') || 'null');
+  if (stored) {
+    tasks = stored.tasks || [];
+    nextId = stored.nextId || (tasks.length ? Math.max(...tasks.map(t => t.id)) + 1 : 1);
+  }
+}
+
 function handleTaskInput(e) {
   if (e.key === 'Enter') addTask();
 }
@@ -281,17 +293,19 @@ function addTask() {
   const text = input.value.trim();
   if (!text) return;
   tasks.push({ id: nextId++, text, done: false });
+  saveTasks();
   input.value = '';
   renderTasks();
 }
 
 function toggleTask(id) {
   const task = tasks.find(t => t.id === id);
-  if (task) { task.done = !task.done; renderTasks(); }
+  if (task) { task.done = !task.done; saveTasks(); renderTasks(); }
 }
 
 function deleteTask(id) {
   tasks = tasks.filter(t => t.id !== id);
+  saveTasks();
   renderTasks();
 }
 
@@ -301,6 +315,7 @@ function escapeHtml(str) {
 
 function clearDone() {
   tasks = tasks.filter(t => !t.done);
+  saveTasks();
   renderTasks();
 }
 
@@ -325,6 +340,7 @@ function editTask(id) {
     committed = true;
     const newText = input.value.trim();
     if (newText) task.text = newText;
+    saveTasks();
     renderTasks();
   }
   function cancel() {
@@ -730,4 +746,5 @@ document.addEventListener('click', () => {
 // ─── Init ─────────────────────────────────────────────────────────────────
 setState('idle');
 updateTimerDisplay();
+loadTasks();
 renderTasks();
