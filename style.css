@@ -266,26 +266,28 @@ body.inverted {
   margin-bottom: 1rem;
 }
 
-/* Blinking cursor while in edit mode */
-#timer-display.editing::after {
-  content: "|";
-  font-weight: 300;
-  font-size: 0.65em;
-  vertical-align: middle;
-  margin-left: 0.05em;
-  animation: blink 1s step-end infinite;
+/* Timer input (editing mode) */
+#timer-input {
+  display: none;
+  font-size: clamp(64px, 10vw, 140px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  background: none;
+  border: none;
+  color: inherit;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 1rem;
+  width: 8ch;
+  caret-color: currentColor;
 }
 
-@keyframes blink {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0;
-  }
+#timer-input.visible {
+  display: block;
 }
 
 /* Sub-hints (edit, confirm, alarm) */

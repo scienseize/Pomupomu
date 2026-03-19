@@ -7,7 +7,6 @@
 let appState = 'idle';
 let preResetState = null;     // which state we paused from when asking to reset
 let cancelEditTarget = 'idle'; // which state Escape returns to from editing
-let digitBuffer = [];          // up to 6 digits, newest at end → renders as HH:MM:SS
 let remainingSeconds = 0;
 let lastSetSeconds = 0;        // last timer value confirmed by the user
 let timerInterval = null;
@@ -35,34 +34,32 @@ function secondsToHMS(s) {
   return `${pad(h)}:${pad(m)}:${pad(sec)}`;
 }
 
-function bufferToDisplay() {
-  const d = [...digitBuffer];
-  while (d.length < 6) d.unshift(0);
-  return `${d[0]}${d[1]}:${d[2]}${d[3]}:${d[4]}${d[5]}`;
-}
-
-function secondsToDigits(secs) {
-  const h = Math.floor(secs / 3600);
-  const m = Math.floor((secs % 3600) / 60);
-  const s = secs % 60;
-  const all = [Math.floor(h / 10), h % 10, Math.floor(m / 10), m % 10, Math.floor(s / 10), s % 10];
-  let i = 0;
-  while (i < all.length - 1 && all[i] === 0) i++;
-  return all.slice(i);
-}
-
-function bufferToSeconds() {
-  const d = [...digitBuffer];
-  while (d.length < 6) d.unshift(0);
-  const h = d[0] * 10 + d[1];
-  const m = Math.min(d[2] * 10 + d[3], 59);
-  const s = Math.min(d[4] * 10 + d[5], 59);
+// Parse a freeform time string into seconds.
+// Accepts "H:MM:SS", "MM:SS", "M:SS", or raw digits (treated as right-padded HHMMSS).
+function parseTimerInput(str) {
+  const clean = str.trim();
+  if (!clean) return 0;
+  const parts = clean.split(':').map(p => parseInt(p, 10) || 0);
+  let h = 0, m = 0, s = 0;
+  if (parts.length === 1) {
+    // bare digits: treat as the digit-buffer did — right-pad to HHMMSS
+    const raw = clean.replace(/\D/g, '').padStart(6, '0').slice(-6);
+    h = parseInt(raw.slice(0, 2), 10);
+    m = Math.min(parseInt(raw.slice(2, 4), 10), 59);
+    s = Math.min(parseInt(raw.slice(4, 6), 10), 59);
+  } else if (parts.length === 2) {
+    [m, s] = parts;
+  } else {
+    [h, m, s] = parts.slice(0, 3);
+  }
+  m = Math.min(m, 59);
+  s = Math.min(s, 59);
   return h * 3600 + m * 60 + s;
 }
 
 function updateTimerDisplay() {
   const el = document.getElementById('timer-display');
-  el.textContent = appState === 'editing' ? bufferToDisplay() : secondsToHMS(remainingSeconds);
+  el.textContent = secondsToHMS(remainingSeconds);
   if (appState === 'running' || appState === 'paused') {
     document.title = `${secondsToHMS(remainingSeconds)} — Pomupomu`;
   }
@@ -78,8 +75,10 @@ function setState(newState) {
   const isNormal = newState === 'running' || newState === 'paused' || newState === 'confirm-reset';
   body.classList.toggle('inverted', !isNormal);
 
-  // Editing cursor
-  timerEl.classList.toggle('editing', newState === 'editing');
+  // Show input in editing mode, display otherwise
+  const inputEl = document.getElementById('timer-input');
+  timerEl.style.display = (newState === 'editing') ? 'none' : '';
+  inputEl.classList.toggle('visible', newState === 'editing');
 
   // Timer opacity
   timerEl.style.opacity = (newState === 'paused' || newState === 'confirm-reset') ? '0.45' : '1';
@@ -130,15 +129,25 @@ function startCountdown() {
   }, 1000);
 }
 
-function enterEditMode(prefill = false) {
+function enterEditMode(prefill = false, initialChar = null) {
   cancelEditTarget = (appState === 'done' || appState === 'ready') ? appState : 'idle';
-  digitBuffer = (prefill && lastSetSeconds > 0) ? secondsToDigits(lastSetSeconds) : [];
   setState('editing');
-  updateTimerDisplay();
+  const input = document.getElementById('timer-input');
+  if (initialChar !== null) {
+    input.value = initialChar;
+    input.setSelectionRange(1, 1);
+  } else if (prefill && lastSetSeconds > 0) {
+    input.value = secondsToHMS(lastSetSeconds);
+    input.select();
+  } else {
+    input.value = '00:00:00';
+    input.select();
+  }
+  input.focus();
 }
 
 function confirmEdit() {
-  const secs = bufferToSeconds();
+  const secs = parseTimerInput(document.getElementById('timer-input').value);
   if (secs === 0) {
     remainingSeconds = 0;
     setState('idle');
@@ -152,7 +161,6 @@ function confirmEdit() {
 }
 
 function cancelEdit() {
-  digitBuffer = [];
   if (cancelEditTarget === 'done' || cancelEditTarget === 'ready') {
     remainingSeconds = lastSetSeconds;
     setState(cancelEditTarget);
@@ -269,36 +277,22 @@ document.addEventListener('keydown', (e) => {
     return;
   }
 
-  // Let the task input handle its own keys
+  // Let the task input and timer input handle their own keys
   if (document.activeElement === document.getElementById('task-input')) return;
+  if (document.activeElement === document.getElementById('timer-input')) return;
 
-  if (appState === 'editing') {
-    if (e.key >= '0' && e.key <= '9') {
-      if (digitBuffer.length < 6) { digitBuffer.push(parseInt(e.key)); updateTimerDisplay(); }
-    } else if (e.key === 'Backspace') {
-      digitBuffer.pop(); updateTimerDisplay();
-    } else if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault(); confirmEdit();
-    } else if (e.key === 'Escape') {
-      cancelEdit();
-    }
-
-  } else if (appState === 'ready') {
+  if (appState === 'ready') {
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault(); setState('running'); startCountdown();
     } else if (e.key === 'Escape') {
       remainingSeconds = 0; lastSetSeconds = 0; setState('idle'); updateTimerDisplay();
     } else if (e.key >= '0' && e.key <= '9') {
-      enterEditMode(false);
-      digitBuffer.push(parseInt(e.key));
-      updateTimerDisplay();
+      enterEditMode(false, e.key);
     }
 
   } else if (appState === 'idle' || appState === 'done') {
     if (e.key >= '0' && e.key <= '9') {
-      enterEditMode(false);
-      digitBuffer.push(parseInt(e.key));
-      updateTimerDisplay();
+      enterEditMode(false, e.key);
     }
 
   } else if (appState === 'running') {
@@ -311,9 +305,7 @@ document.addEventListener('keydown', (e) => {
       e.preventDefault(); setState('running'); startCountdown();
     } else if (e.key >= '0' && e.key <= '9') {
       clearInterval(timerInterval);
-      enterEditMode();
-      digitBuffer.push(parseInt(e.key));
-      updateTimerDisplay();
+      enterEditMode(false, e.key);
     }
   }
 });
@@ -324,8 +316,7 @@ function addMinutes(mins) {
   const add = mins * 60;
 
   if (appState === 'editing') {
-    remainingSeconds = bufferToSeconds() + add;
-    digitBuffer = [];
+    remainingSeconds = parseTimerInput(document.getElementById('timer-input').value) + add;
     lastSetSeconds = remainingSeconds;
     setState('ready');
     updateTimerDisplay();
@@ -439,6 +430,16 @@ function renderTasks() {
   `).join('');
   document.getElementById('clear-done-btn').classList.toggle('visible', tasks.some(t => t.done));
 }
+
+// ─── Timer input — Enter/Space confirm, Escape cancel, blur cancel ─────────
+document.getElementById('timer-input').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); confirmEdit(); }
+  else if (e.key === 'Escape')            { e.preventDefault(); cancelEdit(); }
+});
+
+document.getElementById('timer-input').addEventListener('blur', () => {
+  if (appState === 'editing') cancelEdit();
+});
 
 // ─── Document-level click — stop alarm from anywhere ──────────────────────
 document.addEventListener('click', () => {
