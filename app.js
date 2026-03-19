@@ -582,60 +582,80 @@ function renderConsistencyGrid(sessions) {
     dayMinutes[d.getTime()] = (dayMinutes[d.getTime()] || 0) + Math.floor(s.duration / 60);
   });
 
-  // Find most recent Monday
   const dow = today.getDay();
   const daysToMon = dow === 0 ? 6 : dow - 1;
   const thisMon = new Date(today);
   thisMon.setDate(today.getDate() - daysToMon);
 
+  const WEEKS = 53; // current week + 52 weeks back ≈ one full year
   const startDate = new Date(thisMon);
-  startDate.setDate(thisMon.getDate() - 15 * 7); // 16 weeks total
+  startDate.setDate(thisMon.getDate() - (WEEKS - 1) * 7);
 
-  const cap = 120;
-  const WEEKS = 16;
-  const DAYS = 7;
+  // Compute cell size so the grid fills the full container width
+  const GAP = 3;
+  const DAY_LABEL_W = 28; // approx width of "Mon"/"Wed"/"Fri" label column
+  const containerW = grid.offsetWidth;
+  // total gaps = 1 (after label col) + (WEEKS-1) between week cols = WEEKS gaps
+  const cellSize = Math.max(6, Math.floor((containerW - DAY_LABEL_W - GAP * WEEKS) / WEEKS));
 
-  const cellsEl = document.createElement('div');
-  cellsEl.className = 'grid-cells';
+  // Single grid: col 1 = day labels, cols 2…N = weeks
+  //              row 1 = month labels, rows 2…8 = Mon–Sun
+  const cal = document.createElement('div');
+  cal.className = 'grid-calendar';
+  cal.style.gridTemplateColumns = `auto repeat(${WEEKS}, ${cellSize}px)`;
+  cal.style.gridTemplateRows = `14px repeat(7, ${cellSize}px)`;
 
-  const monthMap = {};
+  // Day labels: Mon, Wed, Fri only (rows 2, 4, 6)
+  [['Mon', 2], ['Wed', 4], ['Fri', 6]].forEach(([name, row]) => {
+    const el = document.createElement('span');
+    el.className = 'day-label';
+    el.textContent = name;
+    el.style.gridRow = row;
+    el.style.gridColumn = 1;
+    cal.appendChild(el);
+  });
+
+  const monthSeen = new Set();
 
   for (let week = 0; week < WEEKS; week++) {
-    for (let day = 0; day < DAYS; day++) {
+    for (let day = 0; day < 7; day++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + week * 7 + day);
 
-      const key = date.getTime();
-      const mins = dayMinutes[key] || 0;
-      const opacity = mins > 0 ? Math.max(0.12, Math.min(1, mins / cap)) : 0.06;
-
-      const cell = document.createElement('span');
-      cell.className = 'grid-cell';
-      cell.style.opacity = opacity;
-      cell.style.gridRow = day + 1;
-      cell.style.gridColumn = week + 1;
-      cell.title = `${date.toLocaleDateString([], { month: 'short', day: 'numeric' })}: ${mins}m`;
-      cellsEl.appendChild(cell);
-
+      // Month label on the first week it appears
       if (day === 0) {
         const mk = `${date.getFullYear()}-${date.getMonth()}`;
-        if (!monthMap[mk]) monthMap[mk] = { week, name: date.toLocaleDateString([], { month: 'short' }) };
+        if (!monthSeen.has(mk)) {
+          monthSeen.add(mk);
+          const label = document.createElement('span');
+          label.className = 'grid-month-label';
+          label.textContent = date.toLocaleDateString([], { month: 'short' });
+          label.style.gridRow = 1;
+          label.style.gridColumn = week + 2;
+          cal.appendChild(label);
+        }
       }
+
+      const mins = dayMinutes[date.getTime()] || 0;
+      const level = mins === 0 ? 0 : mins <= 30 ? 1 : mins <= 60 ? 2 : mins <= 90 ? 3 : 4;
+
+      const cell = document.createElement('span');
+      cell.className = `grid-cell grid-cell-l${level}`;
+      cell.style.gridRow = day + 2;
+      cell.style.gridColumn = week + 2;
+      cell.title = `${date.toLocaleDateString([], { month: 'short', day: 'numeric' })}: ${mins}m`;
+      cal.appendChild(cell);
     }
   }
 
-  const monthsEl = document.createElement('div');
-  monthsEl.className = 'grid-months';
-  Object.values(monthMap).forEach(({ week, name }) => {
-    const label = document.createElement('span');
-    label.className = 'grid-month-label';
-    label.textContent = name;
-    label.style.gridColumn = week + 1;
-    monthsEl.appendChild(label);
-  });
+  grid.appendChild(cal);
 
-  grid.appendChild(cellsEl);
-  grid.appendChild(monthsEl);
+  // Less / More legend
+  const legend = document.createElement('div');
+  legend.className = 'grid-legend';
+  legend.innerHTML = `<span class="grid-legend-text">Less</span>${[0,1,2,3,4].map(l =>
+    `<span class="grid-cell grid-cell-l${l} grid-legend-cell"></span>`).join('')}<span class="grid-legend-text">More</span>`;
+  grid.appendChild(legend);
 }
 
 function renderWeeklySnapshot(sessions) {
