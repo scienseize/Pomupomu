@@ -64,7 +64,7 @@ function updateTimerDisplay() {
   }
   if (appState === 'ready' || appState === 'running' || appState === 'paused') {
     const end = new Date(Date.now() + remainingSeconds * 1000);
-    const timeStr = end.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const timeStr = end.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
     document.getElementById('end-time-text').textContent = `Ends at ${timeStr}`;
   }
 }
