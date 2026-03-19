@@ -485,16 +485,19 @@ function renderConsistencyGrid(sessions) {
   const thisMon = new Date(today);
   thisMon.setDate(today.getDate() - daysToMon);
 
-  const WEEKS = 53; // current week + 52 weeks back ≈ one full year
-  const startDate = new Date(thisMon);
-  startDate.setDate(thisMon.getDate() - (WEEKS - 1) * 7);
-
   // Compute cell size so the grid fills the full container width
   const GAP = 3;
   const DAY_LABEL_W = 28; // approx width of "Mon"/"Wed"/"Fri" label column
+  const MIN_CELL = 8;
   const containerW = grid.offsetWidth;
+  // Cap weeks so cells never drop below MIN_CELL (prevents overflow on narrow screens)
+  const maxWeeks = Math.floor((containerW - DAY_LABEL_W) / (MIN_CELL + GAP));
+  const WEEKS = Math.min(53, Math.max(12, maxWeeks)); // current week + up to 52 weeks back
+  const startDate = new Date(thisMon);
+  startDate.setDate(thisMon.getDate() - (WEEKS - 1) * 7);
+
   // total gaps = 1 (after label col) + (WEEKS-1) between week cols = WEEKS gaps
-  const cellSize = Math.max(6, Math.floor((containerW - DAY_LABEL_W - GAP * WEEKS) / WEEKS));
+  const cellSize = Math.max(MIN_CELL, Math.floor((containerW - DAY_LABEL_W - GAP * WEEKS) / WEEKS));
 
   // Single grid: col 1 = day labels, cols 2…N = weeks
   //              row 1 = month labels, rows 2…8 = Mon–Sun

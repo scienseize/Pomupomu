@@ -1045,15 +1045,40 @@ body.inverted {
 /* ─── Responsive ──────────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
+  body {
+    height: 100dvh;
+    overflow: hidden;
+    align-items: stretch;
+  }
+
   .layout {
     flex-direction: column-reverse;
-    padding: 2.5rem 2rem;
-    gap: 3rem;
-    align-items: flex-start;
+    padding: 2rem 1.5rem 1.5rem;
+    gap: 1.5rem;
+    align-items: stretch;
+    height: 100%;
+    overflow: hidden;
   }
 
   .tasks-col {
-    flex: 0 0 auto;
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .task-list {
+    max-height: none;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .timer-col {
+    flex-shrink: 0;
     width: 100%;
   }
 
@@ -1064,6 +1089,4 @@ body.inverted {
   .stats-cards {
     flex-direction: column;
   }
-
-
 }
