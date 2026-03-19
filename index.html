@@ -50,11 +50,13 @@
         </div>
 
         <p class="tagline" id="tagline">it's time to <em>focus.</em></p>
-        <div id="timer-display" onclick="onTimerClick(event)">00:00:00</div>
+        <div id="timer-display" onclick="onTimerClick()">00:00:00</div>
 
-        <p class="sub-hint hidden" id="edit-hint">
-          enter to start &nbsp;·&nbsp; esc to cancel
-        </p>
+        <div class="timer-actions">
+          <button class="timer-btn" id="timer-btn" onclick="onTimerBtnClick()">Start</button>
+          <button class="reset-btn" id="reset-btn" onclick="onResetBtnClick()">Reset</button>
+        </div>
+
         <p class="sub-hint confirm hidden" id="confirm-prompt">
           reset timer? &nbsp;·&nbsp; enter to confirm &nbsp;·&nbsp; esc to
           cancel
@@ -62,22 +64,14 @@
         <p class="sub-hint hidden" id="alarm-hint">
           click or press any key to stop
         </p>
-        <p class="sub-hint hidden" id="ready-hint">
-          esc to reset &nbsp;·&nbsp; click timer to re-edit
-        </p>
         <p class="sub-hint hidden" id="end-time-hint">
           <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:0.3em"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="end-time-text"></span>
         </p>
 
-        <div class="timer-actions">
-          <button class="timer-btn" id="timer-btn" onclick="onTimerBtnClick()">Start</button>
-          <button class="reset-btn" id="reset-btn" onclick="onResetBtnClick()">Reset</button>
-        </div>
-
         <div class="quick-btns">
-          <button class="quick-btn" onclick="addMinutes(5)">+5m</button>
-          <button class="quick-btn" onclick="addMinutes(10)">+10m</button>
-          <button class="quick-btn" onclick="addMinutes(30)">+30m</button>
+          <button class="quick-btn" onclick="addMinutes(1)">+1m</button>
+          <button class="quick-btn" onclick="addMinutes(45)">+45m</button>
+          <button class="quick-btn" onclick="addMinutes(60)">+60m</button>
         </div>
       </section>
     </main>

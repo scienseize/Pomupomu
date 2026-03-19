@@ -1,14 +1,11 @@
 // ─── State ───────────────────────────────────────────────────────────────
-// States: 'idle' | 'editing' | 'running' | 'paused' | 'confirm-reset' | 'alarm' | 'done'
+// States: 'idle' | 'running' | 'paused' | 'confirm-reset' | 'alarm' | 'done'
 //
 // Colors:  running / paused / confirm-reset  → normal  (black bg, white text)
 //          everything else                   → inverted (white bg, black text)
 
 let appState = 'idle';
 let preResetState = null;     // which state we paused from when asking to reset
-let cancelEditTarget = 'idle'; // which state Escape returns to from editing
-let digitBuffer = [0,0,0,0,0,0]; // always 6 digits: [H1,H2,M1,M2,S1,S2]
-let cursorPos = 0;             // active digit index 0–5
 let remainingSeconds = 0;
 let lastSetSeconds = 0;        // last timer value confirmed by the user
 let timerInterval = null;
@@ -38,28 +35,9 @@ function secondsToHMS(s) {
   return `${pad(h)}:${pad(m)}:${pad(sec)}`;
 }
 
-function bufferToSeconds() {
-  const [h1,h2,m1,m2,s1,s2] = digitBuffer;
-  const h = h1*10 + h2;
-  const m = Math.min(m1*10 + m2, 59);
-  const s = Math.min(s1*10 + s2, 59);
-  return h*3600 + m*60 + s;
-}
-
-function secondsToBuffer(secs) {
-  const h = Math.floor(secs / 3600);
-  const m = Math.floor((secs % 3600) / 60);
-  const s = secs % 60;
-  return [Math.floor(h/10), h%10, Math.floor(m/10), m%10, Math.floor(s/10), s%10];
-}
-
 function updateTimerDisplay() {
   const el = document.getElementById('timer-display');
-  const isEditing = appState === 'editing';
-  const d = isEditing ? digitBuffer : secondsToBuffer(remainingSeconds);
-  const c = cursorPos;
-  const mk = (i) => `<span class="d${isEditing && c===i?' cur':''}" data-i="${i}">${d[i]}</span>`;
-  el.innerHTML = mk(0)+mk(1)+'<span class="sep">:</span>'+mk(2)+mk(3)+'<span class="sep">:</span>'+mk(4)+mk(5);
+  el.textContent = secondsToHMS(remainingSeconds);
   if (appState === 'running' || appState === 'paused') {
     document.title = `${secondsToHMS(remainingSeconds)} — Pomupomu`;
   }
@@ -80,17 +58,12 @@ function setState(newState) {
   const isNormal = newState === 'running' || newState === 'paused' || newState === 'confirm-reset';
   body.classList.toggle('inverted', !isNormal);
 
-  // Editing cursor
-  timerEl.classList.toggle('editing', newState === 'editing');
-
   // Timer opacity
   timerEl.style.opacity = (newState === 'paused' || newState === 'confirm-reset') ? '0.45' : '1';
 
   // Hints
-  document.getElementById('edit-hint').classList.toggle('hidden',     newState !== 'editing');
   document.getElementById('confirm-prompt').classList.toggle('hidden', newState !== 'confirm-reset');
   document.getElementById('alarm-hint').classList.toggle('hidden',    newState !== 'alarm');
-  document.getElementById('ready-hint').classList.toggle('hidden',    newState !== 'ready');
 
   const showEndTime = newState === 'ready' || newState === 'running' || newState === 'paused';
   document.getElementById('end-time-hint').classList.toggle('hidden', !showEndTime);
@@ -107,14 +80,9 @@ function setState(newState) {
 
   // Start / Pause / Resume button
   const btn = document.getElementById('timer-btn');
-  const showBtn = newState === 'ready' || newState === 'done' || newState === 'running' || newState === 'paused';
-  btn.classList.toggle('visible', showBtn);
-  if (newState === 'ready' || newState === 'done') btn.textContent = 'Start';
   if (newState === 'running') btn.textContent = 'Pause';
-  if (newState === 'paused')  btn.textContent = 'Resume';
-
-  // Reset button
-  document.getElementById('reset-btn').classList.toggle('visible', showBtn);
+  else if (newState === 'paused') btn.textContent = 'Resume';
+  else btn.textContent = 'Start';
 
   // Lock mode tabs while timer is active
   const timerActive = newState === 'running' || newState === 'paused' || newState === 'confirm-reset';
@@ -140,44 +108,6 @@ function startCountdown() {
     remainingSeconds--;
     updateTimerDisplay();
   }, 1000);
-}
-
-function enterEditMode(prefill = false, initialChar = null, startPos = 0) {
-  cancelEditTarget = (appState === 'done' || appState === 'ready') ? appState : 'idle';
-  digitBuffer = (prefill && lastSetSeconds > 0) ? secondsToBuffer(lastSetSeconds) : [0,0,0,0,0,0];
-  cursorPos = startPos;
-  if (initialChar !== null) {
-    digitBuffer[cursorPos] = parseInt(initialChar);
-    if (cursorPos < 5) cursorPos++;
-  }
-  setState('editing');
-  updateTimerDisplay();
-}
-
-function confirmEdit() {
-  const secs = bufferToSeconds();
-  if (secs === 0) {
-    remainingSeconds = 0;
-    setState('idle');
-    updateTimerDisplay();
-    return;
-  }
-  lastSetSeconds = secs;
-  remainingSeconds = secs;
-  setState('ready');
-  updateTimerDisplay();
-}
-
-function cancelEdit() {
-  digitBuffer = [0,0,0,0,0,0];
-  if (cancelEditTarget === 'done' || cancelEditTarget === 'ready') {
-    remainingSeconds = lastSetSeconds;
-    setState(cancelEditTarget);
-  } else {
-    remainingSeconds = 0;
-    setState('idle');
-  }
-  updateTimerDisplay();
 }
 
 // ─── Reset confirmation ───────────────────────────────────────────────────
@@ -257,24 +187,10 @@ function stopAlarm() {
 }
 
 // ─── Click handler ────────────────────────────────────────────────────────
-function setCursorPos(i) {
-  cursorPos = i;
-  updateTimerDisplay();
-}
-
-function onTimerClick(e) {
+function onTimerClick() {
   if (alarmActive) { stopAlarm(); return; }
-
-  // Resolve which digit was clicked (works in any state since spans are always rendered)
-  const rawI = e && e.target.getAttribute('data-i');
-  const clickedDigit = rawI !== null && rawI !== undefined ? parseInt(rawI) : 0;
-
-  if (appState === 'editing') { setCursorPos(clickedDigit); return; }
   if (appState === 'running') { clearInterval(timerInterval); setState('paused'); return; }
   if (appState === 'paused')  { setState('running'); startCountdown(); return; }
-  if (appState === 'ready')   { enterEditMode(true,  null, clickedDigit); return; }
-  if (appState === 'idle')    { enterEditMode(false, null, clickedDigit); return; }
-  if (appState === 'done')    { enterEditMode(true,  null, clickedDigit); }
 }
 
 function onTimerBtnClick() {
@@ -306,54 +222,17 @@ document.addEventListener('keydown', (e) => {
   // Let the task input handle its own keys
   if (document.activeElement === document.getElementById('task-input')) return;
 
-  if (appState === 'editing') {
-    if (e.key >= '0' && e.key <= '9') {
-      digitBuffer[cursorPos] = parseInt(e.key);
-      if (cursorPos < 5) cursorPos++;
-      updateTimerDisplay();
-    } else if (e.key === 'Backspace') {
-      e.preventDefault();
-      digitBuffer[cursorPos] = 0;
-      if (cursorPos > 0) cursorPos--;
-      updateTimerDisplay();
-    } else if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      if (cursorPos > 0) { cursorPos--; updateTimerDisplay(); }
-    } else if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      if (cursorPos < 5) { cursorPos++; updateTimerDisplay(); }
-    } else if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault(); confirmEdit();
-    } else if (e.key === 'Escape') {
-      cancelEdit();
-    }
-    // All other keys (letters, symbols) are silently ignored
-
-  } else if (appState === 'ready') {
+  if (appState === 'ready') {
     if (e.key === ' ' || e.key === 'Enter') {
       e.preventDefault(); setState('running'); startCountdown();
-    } else if (e.key === 'Escape') {
-      remainingSeconds = 0; lastSetSeconds = 0; setState('idle'); updateTimerDisplay();
-    } else if (e.key >= '0' && e.key <= '9') {
-      enterEditMode(false, e.key);
     }
-
-  } else if (appState === 'idle' || appState === 'done') {
-    if (e.key >= '0' && e.key <= '9') {
-      enterEditMode(false, e.key);
-    }
-
   } else if (appState === 'running') {
     if (e.key === ' ') {
       e.preventDefault(); clearInterval(timerInterval); setState('paused');
     }
-
   } else if (appState === 'paused') {
     if (e.key === ' ') {
       e.preventDefault(); setState('running'); startCountdown();
-    } else if (e.key >= '0' && e.key <= '9') {
-      clearInterval(timerInterval);
-      enterEditMode(false, e.key);
     }
   }
 });
@@ -363,12 +242,7 @@ function addMinutes(mins) {
   if (appState === 'alarm' || appState === 'confirm-reset') return;
   const add = mins * 60;
 
-  if (appState === 'editing') {
-    remainingSeconds = bufferToSeconds() + add;
-    lastSetSeconds = remainingSeconds;
-    setState('ready');
-    updateTimerDisplay();
-  } else if (appState === 'idle') {
+  if (appState === 'idle') {
     remainingSeconds = add;
     lastSetSeconds = remainingSeconds;
     setState('ready');

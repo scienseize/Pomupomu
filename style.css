@@ -258,23 +258,13 @@ body.inverted {
   font-weight: 900;
   letter-spacing: -0.03em;
   line-height: 1;
-  cursor: text;
+  cursor: default;
   user-select: none;
   font-variant-numeric: tabular-nums;
   transition: opacity 0.3s;
   margin-bottom: 1rem;
 }
 
-/* Individual digit cells */
-#timer-display .d {
-  cursor: text;
-}
-
-/* Highlight the active digit */
-#timer-display.editing .d.cur {
-  background: var(--fg);
-  color: var(--bg);
-}
 
 /* Sub-hints (edit, confirm, alarm) */
 .sub-hint {
@@ -298,11 +288,10 @@ body.inverted {
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .timer-btn {
-  display: none;
   padding: 1rem 4rem;
   border-radius: 100px;
   border: none;
@@ -317,10 +306,6 @@ body.inverted {
   transition: opacity 0.15s, transform 0.15s;
 }
 
-.timer-btn.visible {
-  display: inline-block;
-}
-
 .timer-btn:hover {
   opacity: 0.75;
   transform: translateY(-2px);
@@ -332,7 +317,6 @@ body.inverted {
 }
 
 .reset-btn {
-  display: none;
   padding: 1rem 2rem;
   border-radius: 100px;
   border: 1.5px solid currentColor;
@@ -346,10 +330,6 @@ body.inverted {
   cursor: pointer;
   opacity: 0.35;
   transition: opacity 0.15s, transform 0.15s;
-}
-
-.reset-btn.visible {
-  display: inline-block;
 }
 
 .reset-btn:hover {
