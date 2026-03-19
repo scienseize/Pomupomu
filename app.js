@@ -12,6 +12,7 @@ let cursorPos = 0;             // active digit index 0–5
 let remainingSeconds = 0;
 let lastSetSeconds = 0;        // last timer value confirmed by the user
 let timerInterval = null;
+let endTimeTickInterval = null;
 let currentMode = 'pomodoro';
 let tasks = [];
 let nextId = 1;
@@ -93,6 +94,13 @@ function setState(newState) {
 
   const showEndTime = newState === 'ready' || newState === 'running' || newState === 'paused';
   document.getElementById('end-time-hint').classList.toggle('hidden', !showEndTime);
+
+  // Tick the end-time display every second in states where the countdown isn't running
+  clearInterval(endTimeTickInterval);
+  endTimeTickInterval = null;
+  if (newState === 'ready' || newState === 'paused') {
+    endTimeTickInterval = setInterval(updateTimerDisplay, 1000);
+  }
 
   // Pause overlay
   document.getElementById('pause-overlay').classList.toggle('visible', newState === 'paused');
