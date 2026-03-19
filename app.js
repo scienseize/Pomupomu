@@ -61,6 +61,11 @@ function updateTimerDisplay() {
   if (appState === 'running' || appState === 'paused') {
     document.title = `${secondsToHMS(remainingSeconds)} — Pomupomu`;
   }
+  if (appState === 'ready' || appState === 'running' || appState === 'paused') {
+    const end = new Date(Date.now() + remainingSeconds * 1000);
+    const timeStr = end.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    document.getElementById('end-time-hint').textContent = `Ends at ${timeStr}`;
+  }
 }
 
 // ─── State machine ────────────────────────────────────────────────────────
@@ -84,6 +89,9 @@ function setState(newState) {
   document.getElementById('confirm-prompt').classList.toggle('hidden', newState !== 'confirm-reset');
   document.getElementById('alarm-hint').classList.toggle('hidden',    newState !== 'alarm');
   document.getElementById('ready-hint').classList.toggle('hidden',    newState !== 'ready');
+
+  const showEndTime = newState === 'ready' || newState === 'running' || newState === 'paused';
+  document.getElementById('end-time-hint').classList.toggle('hidden', !showEndTime);
 
   // Pause overlay
   document.getElementById('pause-overlay').classList.toggle('visible', newState === 'paused');
