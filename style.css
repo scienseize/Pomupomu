@@ -58,6 +58,36 @@ html[data-theme="olivia"] body.inverted {
   color: var(--fg);
 }
 
+/* chaos-theory: running = dark purple / neon pink, idle = soft pink / dark purple */
+html[data-theme="chaos-theory"] body {
+  --bg: #1a0d2e;
+  --fg: #f72585;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+html[data-theme="chaos-theory"] body.inverted {
+  --bg: #fce4f5;
+  --fg: #1a0d2e;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* catppuccin mocha: running = mocha base / lavender, idle = latte base / mocha text */
+html[data-theme="catppuccin"] body {
+  --bg: #1e1e2e;
+  --fg: #cba6f7;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+html[data-theme="catppuccin"] body.inverted {
+  --bg: #eff1f5;
+  --fg: #4c4f69;
+  background: var(--bg);
+  color: var(--fg);
+}
+
 /* ─── Layout ──────────────────────────────────────────────────────────── */
 
 .layout {
