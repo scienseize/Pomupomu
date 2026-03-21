@@ -741,12 +741,44 @@ function hideSessionDetail() {
   document.getElementById('session-detail-modal').classList.add('hidden');
 }
 
+// ─── Theme ────────────────────────────────────────────────────────────────
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem('pmp_theme', theme);
+  document.querySelectorAll('.theme-option').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === theme);
+  });
+  closePicker();
+}
+
+function toggleThemePicker() {
+  document.getElementById('theme-picker').classList.toggle('hidden');
+}
+
+function closePicker() {
+  document.getElementById('theme-picker').classList.add('hidden');
+}
+
+function loadTheme() {
+  const saved = localStorage.getItem('pmp_theme') || 'default';
+  document.documentElement.dataset.theme = saved;
+  document.querySelectorAll('.theme-option').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.theme === saved);
+  });
+}
+
 // ─── Document-level click — stop alarm from anywhere ──────────────────────
-document.addEventListener('click', () => {
-  if (alarmActive) stopAlarm();
+document.addEventListener('click', (e) => {
+  if (alarmActive) { stopAlarm(); return; }
+  const picker = document.getElementById('theme-picker');
+  const btn = document.getElementById('theme-btn');
+  if (!picker.classList.contains('hidden') && !picker.contains(e.target) && !btn.contains(e.target)) {
+    closePicker();
+  }
 });
 
 // ─── Init ─────────────────────────────────────────────────────────────────
+loadTheme();
 setState('idle');
 updateTimerDisplay();
 loadTasks();

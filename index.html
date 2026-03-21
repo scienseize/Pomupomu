@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="default">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -59,20 +59,60 @@
               Break
             </button>
           </div>
-          <button id="stats-btn" onclick="toggleStats()" title="Stats">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <rect x="2" y="14" width="4" height="8" rx="1" />
-              <rect x="10" y="8" width="4" height="14" rx="1" />
-              <rect x="18" y="2" width="4" height="20" rx="1" />
-            </svg>
-            Stats
-          </button>
+          <div class="mode-tabs-controls">
+            <div class="theme-picker-wrap">
+              <button id="theme-btn" onclick="toggleThemePicker()" title="Theme">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/>
+                  <path d="M12 3a9 9 0 0 1 0 18V3z" fill="currentColor"/>
+                </svg>
+                Theme
+              </button>
+              <div id="theme-picker" class="hidden">
+                <button class="theme-option active" data-theme="default" onclick="setTheme('default')">
+                  <svg class="theme-option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                  <span class="theme-option-name">Default</span>
+                  <span class="theme-swatches">
+                    <span class="theme-swatch" style="background:#000"></span>
+                    <span class="theme-swatch" style="background:#808080"></span>
+                    <span class="theme-swatch" style="background:#fff"></span>
+                  </span>
+                </button>
+                <button class="theme-option" data-theme="gruvbox-light" onclick="setTheme('gruvbox-light')">
+                  <svg class="theme-option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                  <span class="theme-option-name">Gruvbox Light</span>
+                  <span class="theme-swatches">
+                    <span class="theme-swatch" style="background:#98971a"></span>
+                    <span class="theme-swatch" style="background:#928374"></span>
+                    <span class="theme-swatch" style="background:#3c3836"></span>
+                  </span>
+                </button>
+                <button class="theme-option" data-theme="olivia" onclick="setTheme('olivia')">
+                  <svg class="theme-option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                  <span class="theme-option-name">Olivia</span>
+                  <span class="theme-swatches">
+                    <span class="theme-swatch" style="background:#c9a899"></span>
+                    <span class="theme-swatch" style="background:#3d2d2a"></span>
+                    <span class="theme-swatch" style="background:#e8ddd8"></span>
+                  </span>
+                </button>
+              </div>
+            </div>
+            <button id="stats-btn" onclick="toggleStats()" title="Stats">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <rect x="2" y="14" width="4" height="8" rx="1" />
+                <rect x="10" y="8" width="4" height="14" rx="1" />
+                <rect x="18" y="2" width="4" height="20" rx="1" />
+              </svg>
+              Stats
+            </button>
+          </div>
         </div>
 
         <p class="tagline" id="tagline">it's time to <em>focus.</em></p>

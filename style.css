@@ -28,6 +28,36 @@ body.inverted {
   color: var(--fg);
 }
 
+/* ─── Themes ──────────────────────────────────────────────────────────── */
+
+html[data-theme="gruvbox-light"] body {
+  --bg: #282828;
+  --fg: #ebdbb2;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+html[data-theme="gruvbox-light"] body.inverted {
+  --bg: #fbf1c7;
+  --fg: #3c3836;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+html[data-theme="olivia"] body {
+  --bg: #1c1718;
+  --fg: #c9a899;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+html[data-theme="olivia"] body.inverted {
+  --bg: #e8ddd8;
+  --fg: #2a1e1b;
+  background: var(--bg);
+  color: var(--fg);
+}
+
 /* ─── Layout ──────────────────────────────────────────────────────────── */
 
 .layout {
@@ -718,6 +748,115 @@ body.inverted {
 
 #stats-btn:hover {
   opacity: 0.7;
+}
+
+/* ─── Theme button & picker ───────────────────────────────────────────── */
+
+.mode-tabs-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: none;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.25;
+  transition: opacity 0.2s;
+  padding: 0;
+}
+
+#theme-btn:hover {
+  opacity: 0.7;
+}
+
+.theme-picker-wrap {
+  position: relative;
+}
+
+#theme-picker {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  background: var(--bg);
+  border: 1.5px solid currentColor;
+  border-radius: 10px;
+  padding: 0.35rem;
+  min-width: 220px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+#theme-picker.hidden {
+  display: none;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  background: none;
+  border: none;
+  border-radius: 7px;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0.55rem 0.65rem;
+  opacity: 0.5;
+  transition: opacity 0.15s, background 0.15s;
+  text-align: left;
+}
+
+.theme-option:hover {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.theme-option.active {
+  opacity: 1;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+
+.theme-option-icon {
+  flex-shrink: 0;
+  width: 13px;
+  height: 13px;
+}
+
+.theme-option-name {
+  flex: 1;
+}
+
+.theme-swatches {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.theme-swatch {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(128, 128, 128, 0.25);
 }
 
 /* ─── Stats panel (fixed overlay) ────────────────────────────────────── */
