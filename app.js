@@ -9,6 +9,7 @@ let preResetState = null;     // which state we paused from when asking to reset
 let remainingSeconds = 0;
 let lastSetSeconds = 0;        // last timer value confirmed by the user
 let timerInterval = null;
+let timerEndTime = null;         // absolute ms timestamp when countdown reaches zero
 let endTimeTickInterval = null;
 let currentMode = 'pomodoro';
 let tasks = [];
@@ -97,18 +98,27 @@ function setState(newState) {
 // ─── Timer control ────────────────────────────────────────────────────────
 function startCountdown() {
   clearInterval(timerInterval);
+  timerEndTime = Date.now() + remainingSeconds * 1000;
   timerInterval = setInterval(() => {
+    remainingSeconds = Math.max(0, Math.round((timerEndTime - Date.now()) / 1000));
+    updateTimerDisplay();
     if (remainingSeconds <= 0) {
       clearInterval(timerInterval);
-      remainingSeconds = 0;
-      updateTimerDisplay();
       startAlarm();
-      return;
     }
-    remainingSeconds--;
-    updateTimerDisplay();
-  }, 1000);
+  }, 500);
 }
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && appState === 'running') {
+    remainingSeconds = Math.max(0, Math.round((timerEndTime - Date.now()) / 1000));
+    updateTimerDisplay();
+    if (remainingSeconds <= 0) {
+      clearInterval(timerInterval);
+      startAlarm();
+    }
+  }
+});
 
 // ─── Reset confirmation ───────────────────────────────────────────────────
 function showResetConfirm() {
