@@ -143,6 +143,9 @@
           <button class="reset-btn" id="reset-btn" onclick="onResetBtnClick()">
             Reset
           </button>
+          <button class="stop-btn hidden" id="stop-btn" onclick="onStopBtnClick()">
+            Stop &amp; Save
+          </button>
           <p
             class="sub-hint end-time-hint"
             id="end-time-hint"
@@ -170,6 +173,10 @@
           reset timer? &nbsp;·&nbsp; enter to confirm &nbsp;·&nbsp; esc to
           cancel
         </p>
+        <p class="sub-hint confirm hidden" id="confirm-stop-prompt">
+          stop &amp; save? &nbsp;·&nbsp; enter to confirm &nbsp;·&nbsp; esc to
+          cancel
+        </p>
         <p class="sub-hint hidden" id="alarm-hint">
           click or press any key to stop
         </p>
@@ -188,7 +195,7 @@
     <div id="session-modal" class="hidden">
       <div class="session-modal-box">
         <div class="session-modal-header">
-          <span class="session-modal-heading">Session complete</span>
+          <span class="session-modal-heading" id="session-modal-heading">Session complete</span>
           <button class="session-modal-skip" onclick="skipSessionModal()">
             Skip
           </button>

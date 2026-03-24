@@ -407,6 +407,31 @@ html[data-theme="catppuccin"] body.inverted {
   transform: translateY(0);
 }
 
+.stop-btn {
+  padding: 1rem 2rem;
+  border-radius: 100px;
+  border: 1.5px solid currentColor;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.stop-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.stop-btn:active {
+  transform: translateY(0);
+}
+
 /* ─── Quick time buttons ──────────────────────────────────────────────── */
 
 .quick-btns {
@@ -1265,6 +1290,10 @@ html[data-theme="catppuccin"] body.inverted {
   }
 
   .reset-btn {
+    padding: 0.75rem 1.25rem;
+  }
+
+  .stop-btn {
     padding: 0.75rem 1.25rem;
   }
 

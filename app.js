@@ -6,6 +6,7 @@
 
 let appState = 'idle';
 let preResetState = null;     // which state we paused from when asking to reset
+let preStopState = null;      // which state we paused from when asking to stop
 let remainingSeconds = 0;
 let lastSetSeconds = 0;        // last timer value confirmed by the user
 let timerInterval = null;
@@ -56,23 +57,24 @@ function setState(newState) {
   const timerEl = document.getElementById('timer-display');
 
   // Color scheme
-  const isNormal = newState === 'running' || newState === 'paused' || newState === 'confirm-reset';
+  const isNormal = newState === 'running' || newState === 'paused' || newState === 'confirm-reset' || newState === 'confirm-stop';
   body.classList.toggle('inverted', !isNormal);
 
   // Timer opacity
-  timerEl.style.opacity = (newState === 'paused' || newState === 'confirm-reset') ? '0.45' : '1';
+  timerEl.style.opacity = (newState === 'paused' || newState === 'confirm-reset' || newState === 'confirm-stop') ? '0.45' : '1';
 
   // Hints
   document.getElementById('confirm-prompt').classList.toggle('hidden', newState !== 'confirm-reset');
+  document.getElementById('confirm-stop-prompt').classList.toggle('hidden', newState !== 'confirm-stop');
   document.getElementById('alarm-hint').classList.toggle('hidden',    newState !== 'alarm');
 
-  const showEndTime = newState === 'ready' || newState === 'running' || newState === 'paused';
+  const showEndTime = newState === 'ready' || newState === 'running' || newState === 'paused' || newState === 'confirm-stop';
   document.getElementById('end-time-hint').style.visibility = showEndTime ? 'visible' : 'hidden';
 
   // Tick the end-time display every second in states where the countdown isn't running
   clearInterval(endTimeTickInterval);
   endTimeTickInterval = null;
-  if (newState === 'ready' || newState === 'paused') {
+  if (newState === 'ready' || newState === 'paused' || newState === 'confirm-stop') {
     endTimeTickInterval = setInterval(updateTimerDisplay, 1000);
   }
 
@@ -85,8 +87,13 @@ function setState(newState) {
   else if (newState === 'paused') btn.textContent = 'Resume';
   else btn.textContent = 'Start';
 
+  // Stop & Save button — only when timer is active (not while confirming)
+  const stopBtn = document.getElementById('stop-btn');
+  const showStop = newState === 'running' || newState === 'paused';
+  stopBtn.classList.toggle('hidden', !showStop);
+
   // Lock mode tabs while timer is active
-  const timerActive = newState === 'running' || newState === 'paused' || newState === 'confirm-reset';
+  const timerActive = newState === 'running' || newState === 'paused' || newState === 'confirm-reset' || newState === 'confirm-stop';
   document.querySelectorAll('.mode-btn').forEach(b => { b.disabled = timerActive; });
 
   // Browser tab title — reset when not actively counting
@@ -217,6 +224,37 @@ function onResetBtnClick() {
   updateTimerDisplay();
 }
 
+function onStopBtnClick() {
+  if (appState !== 'running' && appState !== 'paused') return;
+  preStopState = appState;
+  clearInterval(timerInterval);
+  setState('confirm-stop');
+}
+
+function confirmStop() {
+  const elapsed = lastSetSeconds - remainingSeconds;
+  preStopState = null;
+  remainingSeconds = 0;
+  lastSetSeconds = 0;
+  setState('idle');
+  updateTimerDisplay();
+  if (currentMode === 'pomodoro' && elapsed > 0) {
+    pendingSessionDuration = elapsed;
+    showSessionModal('Session stopped');
+  }
+}
+
+function cancelStop() {
+  const returnTo = preStopState;
+  preStopState = null;
+  if (returnTo === 'running') {
+    setState('running');
+    startCountdown();
+  } else {
+    setState('paused');
+  }
+}
+
 // ─── Keyboard ─────────────────────────────────────────────────────────────
 document.addEventListener('keydown', (e) => {
   // Let the session modal handle its own keys
@@ -244,6 +282,9 @@ document.addEventListener('keydown', (e) => {
     if (e.key === ' ') {
       e.preventDefault(); setState('running'); startCountdown();
     }
+  } else if (appState === 'confirm-stop') {
+    if (e.key === 'Enter') { e.preventDefault(); confirmStop(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancelStop(); }
   }
 });
 
@@ -390,7 +431,8 @@ function handleSessionDescKey(e) {
   if (e.key === 'Escape') { e.preventDefault(); skipSessionModal(); }
 }
 
-function showSessionModal() {
+function showSessionModal(heading = 'Session complete') {
+  document.getElementById('session-modal-heading').textContent = heading;
   const modal = document.getElementById('session-modal');
   modal.classList.remove('hidden');
   const titleInput = document.getElementById('session-title-input');
