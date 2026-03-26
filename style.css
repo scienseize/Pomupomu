@@ -125,7 +125,7 @@ html[data-theme="catppuccin"] body.inverted {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.05rem;
   max-height: 50vh;
   overflow-y: auto;
 }
@@ -137,39 +137,43 @@ html[data-theme="catppuccin"] body.inverted {
   font-size: 0.95rem;
   font-weight: 400;
   line-height: 1.4;
+  padding: 0.38rem 0.45rem;
+  border-radius: 6px;
+  transition: background 0.12s;
 }
 
-.task-item + .task-item {
-  border-top: 1px solid color-mix(in srgb, currentColor 9%, transparent);
-  padding-top: 0.45rem;
+.task-item:hover {
+  background: color-mix(in srgb, currentColor 5%, transparent);
 }
 
 .task-check {
   flex-shrink: 0;
-  width: 13px;
-  height: 13px;
+  width: 15px;
+  height: 15px;
   border: 1.5px solid currentColor;
-  opacity: 0.4;
+  border-radius: 3px;
+  opacity: 0.35;
   cursor: pointer;
   position: relative;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, transform 0.12s;
 }
 
 .task-check:hover {
-  opacity: 0.8;
+  opacity: 0.75;
 }
 
 .task-check.checked {
-  opacity: 0.25;
+  opacity: 0.22;
+  transform: scale(0.88);
 }
 
 .task-check.checked::after {
   content: '';
   position: absolute;
-  left: 2px;
-  top: -1px;
-  width: 4px;
-  height: 8px;
+  left: 3px;
+  top: 0px;
+  width: 5px;
+  height: 9px;
   border-right: 1.5px solid currentColor;
   border-bottom: 1.5px solid currentColor;
   transform: rotate(45deg);
@@ -206,31 +210,36 @@ html[data-theme="catppuccin"] body.inverted {
   cursor: pointer;
   font-size: 1.1rem;
   line-height: 1;
-  opacity: 0;
+  opacity: 0.12;
   transition: opacity 0.15s;
   padding: 0 2px;
 }
 
 .task-item:hover .delete-btn {
-  opacity: 0.4;
+  opacity: 0.38;
+}
+
+.delete-btn:hover {
+  opacity: 0.75 !important;
 }
 
 .clear-done-btn {
   display: none;
   background: none;
-  border: none;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  border-radius: 100px;
   color: inherit;
   font-family: inherit;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  opacity: 0.3;
+  opacity: 0.5;
   cursor: pointer;
-  padding: 0;
-  text-align: left;
-  transition: opacity 0.15s;
-  margin-top: 0.4rem;
+  padding: 0.28rem 0.7rem;
+  align-self: flex-start;
+  transition: opacity 0.15s, border-color 0.15s;
+  margin-top: 0.5rem;
 }
 
 .clear-done-btn.visible {
@@ -238,7 +247,8 @@ html[data-theme="catppuccin"] body.inverted {
 }
 
 .clear-done-btn:hover {
-  opacity: 0.7;
+  opacity: 0.9;
+  border-color: color-mix(in srgb, currentColor 50%, transparent);
 }
 
 .task-add {
@@ -247,7 +257,6 @@ html[data-theme="catppuccin"] body.inverted {
   gap: 0.5rem;
   opacity: 0.3;
   transition: opacity 0.2s;
-  margin-top: 1rem;
 }
 
 .task-add:focus-within {
@@ -1301,8 +1310,23 @@ html[data-theme="catppuccin"] body.inverted {
     gap: 0.5rem;
   }
 
+  /* Task controls sit above the scrollable list on mobile */
+  .task-add {
+    order: 0;
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
+
+  .clear-done-btn {
+    order: 1;
+    flex-shrink: 0;
+    margin-top: 0;
+    margin-bottom: 0.2rem;
+  }
+
   /* Task list scrolls within its allocated space */
   .task-list {
+    order: 2;
     flex: 1;
     min-height: 0;
     max-height: none;

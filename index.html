@@ -19,7 +19,25 @@
     <main class="layout">
       <!-- Left: Tasks -->
       <section class="tasks-col">
+        <div class="task-add">
+          <span class="task-add-icon">+</span>
+          <input
+            id="task-input"
+            type="text"
+            placeholder="add a task..."
+            maxlength="80"
+            class="task-add-input"
+            onkeydown="handleTaskInput(event)"
+          />
+        </div>
         <ul class="task-list" id="task-list"></ul>
+        <button
+          class="clear-done-btn"
+          id="clear-done-btn"
+          onclick="clearDone()"
+        >
+          clear done
+        </button>
       </section>
 
       <!-- Right: Timer -->
@@ -171,24 +189,6 @@
           <button class="quick-btn" onclick="addMinutes(45)">+45m</button>
           <button class="quick-btn" onclick="addMinutes(60)">+60m</button>
         </div>
-        <div class="task-add">
-          <span class="task-add-icon">+</span>
-          <input
-            id="task-input"
-            type="text"
-            placeholder="add a task..."
-            maxlength="80"
-            class="task-add-input"
-            onkeydown="handleTaskInput(event)"
-          />
-        </div>
-        <button
-          class="clear-done-btn"
-          id="clear-done-btn"
-          onclick="clearDone()"
-        >
-          clear done
-        </button>
       </section>
     </main>
 
