@@ -43,7 +43,9 @@ function updateTimerDisplay() {
     document.title = `${secondsToMS(remainingSeconds)} — Pomupomu`;
   }
   const progress = lastSetSeconds > 0 ? remainingSeconds / lastSetSeconds : 0;
-  document.getElementById('timer-progress').style.setProperty('--progress', progress);
+  const progressEl = document.getElementById('timer-progress');
+  progressEl.style.setProperty('--progress', progress);
+  progressEl.classList.toggle('spark-visible', progress > 0);
   if (appState === 'ready' || appState === 'running' || appState === 'paused') {
     const end = new Date(Date.now() + remainingSeconds * 1000);
     const timeStr = end.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });

@@ -354,24 +354,75 @@ html[data-theme="catppuccin"] body.inverted {
   margin-bottom: 0.55rem;
 }
 
-/* Hairline progress bar */
+/* Progress bar with spark */
 .timer-progress {
   width: 100%;
-  height: 1px;
-  background: color-mix(in srgb, currentColor 12%, transparent);
+  height: 14px;
   position: relative;
-  margin-bottom: 1rem;
-  overflow: hidden;
+  margin-bottom: 0.75rem;
+  /* 1px hairline track centred vertically */
+  background: linear-gradient(
+    to bottom,
+    transparent calc(50% - 0.5px),
+    color-mix(in srgb, currentColor 12%, transparent) calc(50% - 0.5px),
+    color-mix(in srgb, currentColor 12%, transparent) calc(50% + 0.5px),
+    transparent calc(50% + 0.5px)
+  );
 }
 
+/* Fill bar */
 .timer-progress::after {
   content: '';
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: calc(50% - 0.5px);
+  height: 1px;
+  width: 100%;
   background: currentColor;
   transform-origin: left;
   transform: scaleX(var(--progress, 0));
   transition: transform 0.5s linear;
+}
+
+/* Spark at the leading edge */
+.timer-progress::before {
+  content: '';
+  position: absolute;
+  left: calc(var(--progress, 0) * 100%);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  animation: spark-flicker 0.2s ease-in-out infinite alternate;
+  transition: left 0.5s linear;
+}
+
+.timer-progress.spark-visible::before {
+  opacity: 1;
+}
+
+@keyframes spark-flicker {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow:
+      0 0 2px 1px currentColor,
+      0 0 6px 3px color-mix(in srgb, currentColor 55%, transparent),
+      2px -4px 0 0 color-mix(in srgb, currentColor 45%, transparent),
+      -2px -3px 0 0 color-mix(in srgb, currentColor 30%, transparent),
+      0  -5px 0 0 color-mix(in srgb, currentColor 20%, transparent);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.25);
+    box-shadow:
+      0 0 3px 2px currentColor,
+      0 0 9px 4px color-mix(in srgb, currentColor 45%, transparent),
+      -3px -3px 0 0 color-mix(in srgb, currentColor 40%, transparent),
+       2px -5px 0 0 color-mix(in srgb, currentColor 25%, transparent),
+       1px -2px 0 0 color-mix(in srgb, currentColor 50%, transparent);
+  }
 }
 
 .timer-progress.hidden {
@@ -1398,7 +1449,8 @@ html[data-theme="catppuccin"] body.inverted {
   }
 
   .timer-progress {
-    margin-bottom: 0.5rem;
+    height: 12px;
+    margin-bottom: 0.3rem;
   }
 
   .timer-btn {
