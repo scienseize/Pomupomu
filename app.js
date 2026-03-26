@@ -30,18 +30,17 @@ const taglines = {
 // ─── Display helpers ──────────────────────────────────────────────────────
 function pad(n) { return String(n).padStart(2, '0'); }
 
-function secondsToHMS(s) {
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
+function secondsToMS(s) {
+  const m = Math.floor(s / 60);
   const sec = s % 60;
-  return `${pad(h)}:${pad(m)}:${pad(sec)}`;
+  return `${pad(m)}:${pad(sec)}`;
 }
 
 function updateTimerDisplay() {
   const el = document.getElementById('timer-display');
-  el.textContent = secondsToHMS(remainingSeconds);
+  el.textContent = secondsToMS(remainingSeconds);
   if (appState === 'running' || appState === 'paused') {
-    document.title = `${secondsToHMS(remainingSeconds)} — Pomupomu`;
+    document.title = `${secondsToMS(remainingSeconds)} — Pomupomu`;
   }
   if (appState === 'ready' || appState === 'running' || appState === 'paused') {
     const end = new Date(Date.now() + remainingSeconds * 1000);

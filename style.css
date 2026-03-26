@@ -343,7 +343,7 @@ html[data-theme="catppuccin"] body.inverted {
 
 /* Timer display */
 #timer-display {
-  font-size: clamp(64px, 10vw, 140px);
+  font-size: clamp(80px, 15vw, 190px);
   font-weight: 900;
   letter-spacing: -0.03em;
   line-height: 1;
@@ -1359,7 +1359,7 @@ html[data-theme="catppuccin"] body.inverted {
   }
 
   #timer-display {
-    font-size: clamp(68px, 19vw, 114px);
+    font-size: clamp(80px, 26vw, 150px);
     margin-top: 0;
     margin-bottom: 0.5rem;
   }
@@ -1398,10 +1398,12 @@ html[data-theme="catppuccin"] body.inverted {
   }
 
   .quick-btn {
-    flex: 1;
-    padding: 0.3rem 0;
+    flex: 1 1 0px;
+    min-width: 0;
+    padding: 0.3rem 0.3rem;
     font-size: 0.6rem;
     text-align: center;
+    overflow: hidden;
   }
 
   #stats-panel {
