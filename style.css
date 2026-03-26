@@ -351,7 +351,31 @@ html[data-theme="catppuccin"] body.inverted {
   cursor: default;
   user-select: none;
   transition: opacity 0.3s;
+  margin-bottom: 0.55rem;
+}
+
+/* Hairline progress bar */
+.timer-progress {
+  width: 100%;
+  height: 1px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  position: relative;
   margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.timer-progress::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  transform-origin: left;
+  transform: scaleX(var(--progress, 0));
+  transition: transform 0.5s linear;
+}
+
+.timer-progress.hidden {
+  visibility: hidden;
 }
 
 @keyframes timer-pulse {
@@ -1368,8 +1392,12 @@ html[data-theme="catppuccin"] body.inverted {
   }
 
   #timer-display {
-    font-size: clamp(80px, 26vw, 150px);
+    font-size: clamp(68px, 20vw, 120px);
     margin-top: 0;
+    margin-bottom: 0.3rem;
+  }
+
+  .timer-progress {
     margin-bottom: 0.5rem;
   }
 

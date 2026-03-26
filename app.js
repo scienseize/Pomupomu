@@ -42,6 +42,8 @@ function updateTimerDisplay() {
   if (appState === 'running' || appState === 'paused') {
     document.title = `${secondsToMS(remainingSeconds)} — Pomupomu`;
   }
+  const progress = lastSetSeconds > 0 ? remainingSeconds / lastSetSeconds : 0;
+  document.getElementById('timer-progress').style.setProperty('--progress', progress);
   if (appState === 'ready' || appState === 'running' || appState === 'paused') {
     const end = new Date(Date.now() + remainingSeconds * 1000);
     const timeStr = end.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
@@ -64,6 +66,9 @@ function setState(newState) {
 
   // Pulse animation — only while actively counting down
   timerEl.classList.toggle('pulsing', newState === 'running');
+
+  // Progress bar — visible whenever a session is set
+  document.getElementById('timer-progress').classList.toggle('hidden', newState === 'idle' || newState === 'done');
 
   // Hints
   document.getElementById('confirm-prompt').classList.toggle('hidden', newState !== 'confirm-reset');
