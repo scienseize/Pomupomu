@@ -62,6 +62,9 @@ function setState(newState) {
   // Timer opacity
   timerEl.style.opacity = (newState === 'paused' || newState === 'confirm-reset' || newState === 'confirm-stop') ? '0.45' : '1';
 
+  // Pulse animation — only while actively counting down
+  timerEl.classList.toggle('pulsing', newState === 'running');
+
   // Hints
   document.getElementById('confirm-prompt').classList.toggle('hidden', newState !== 'confirm-reset');
   document.getElementById('confirm-stop-prompt').classList.toggle('hidden', newState !== 'confirm-stop');

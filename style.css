@@ -343,15 +343,24 @@ html[data-theme="catppuccin"] body.inverted {
 
 /* Timer display */
 #timer-display {
+  font-family: 'Martian Mono', monospace;
   font-size: clamp(80px, 15vw, 190px);
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1;
   cursor: default;
   user-select: none;
-  font-variant-numeric: tabular-nums;
   transition: opacity 0.3s;
   margin-bottom: 1rem;
+}
+
+@keyframes timer-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.78; }
+}
+
+#timer-display.pulsing {
+  animation: timer-pulse 3s ease-in-out infinite;
 }
 
 
