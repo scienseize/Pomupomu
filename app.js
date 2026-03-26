@@ -288,26 +288,28 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ─── Quick time buttons ───────────────────────────────────────────────────
+const MAX_SECONDS = 3600;
+
 function addMinutes(mins) {
   if (appState === 'alarm' || appState === 'confirm-reset') return;
   const add = mins * 60;
 
   if (appState === 'idle') {
-    remainingSeconds = add;
+    remainingSeconds = Math.min(add, MAX_SECONDS);
     lastSetSeconds = remainingSeconds;
     setState('ready');
     updateTimerDisplay();
   } else if (appState === 'done') {
-    remainingSeconds += add;
+    remainingSeconds = Math.min(remainingSeconds + add, MAX_SECONDS);
     lastSetSeconds = remainingSeconds;
     setState('ready');
     updateTimerDisplay();
   } else if (appState === 'ready') {
-    remainingSeconds += add;
+    remainingSeconds = Math.min(remainingSeconds + add, MAX_SECONDS);
     lastSetSeconds = remainingSeconds;
     updateTimerDisplay();
   } else if (appState === 'running' || appState === 'paused') {
-    remainingSeconds += add;
+    remainingSeconds = Math.min(remainingSeconds + add, MAX_SECONDS);
     updateTimerDisplay();
   }
 }
