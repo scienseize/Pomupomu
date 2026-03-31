@@ -27,6 +27,9 @@ const taglines = {
   break:    `time for a <em>break.</em>`,
 };
 
+// Cached Intl formatter — avoids re-instantiating the locale engine every 500ms
+const endTimeFmt = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+
 // ─── Display helpers ──────────────────────────────────────────────────────
 function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -47,9 +50,8 @@ function updateTimerDisplay() {
   progressEl.style.setProperty('--progress', progress);
   progressEl.classList.toggle('spark-visible', progress > 0);
   if (appState === 'ready' || appState === 'running' || appState === 'paused') {
-    const end = new Date(Date.now() + remainingSeconds * 1000);
-    const timeStr = end.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit' });
-    document.getElementById('end-time-text').textContent = `Ends at ${timeStr}`;
+    document.getElementById('end-time-text').textContent =
+      `Ends at ${endTimeFmt.format(new Date(Date.now() + remainingSeconds * 1000))}`;
   }
 }
 
@@ -103,7 +105,7 @@ function setState(newState) {
 
   // Lock mode tabs while timer is active
   const timerActive = newState === 'running' || newState === 'paused' || newState === 'confirm-reset' || newState === 'confirm-stop';
-  document.querySelectorAll('.mode-btn').forEach(b => { b.disabled = timerActive; });
+  modeBtns.forEach(b => { b.disabled = timerActive; });
 
   // Browser tab title — reset when not actively counting
   if (newState !== 'running' && newState !== 'paused') {
@@ -327,7 +329,7 @@ function addMinutes(mins) {
 // ─── Mode ─────────────────────────────────────────────────────────────────
 function setMode(mode) {
   currentMode = mode;
-  document.querySelectorAll('.mode-btn').forEach(b => {
+  modeBtns.forEach(b => {
     b.classList.toggle('active', b.dataset.mode === mode);
   });
   document.getElementById('tagline').innerHTML = taglines[mode];
@@ -371,8 +373,9 @@ function deleteTask(id) {
   renderTasks();
 }
 
+const _escMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' };
 function escapeHtml(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  return str.replace(/[&<>"]/g, c => _escMap[c]);
 }
 
 function clearDone() {
@@ -531,6 +534,13 @@ function renderTotalFocus(sessions) {
 
 function renderConsistencyGrid(sessions) {
   const grid = document.getElementById('consistency-grid');
+
+  // Read layout metrics BEFORE clearing so the browser doesn't force an extra reflow
+  const GAP = 3;
+  const DAY_LABEL_W = 28; // approx width of "Mon"/"Wed"/"Fri" label column
+  const MIN_CELL = 8;
+  const containerW = grid.offsetWidth;
+
   grid.innerHTML = '';
 
   const today = new Date();
@@ -547,12 +557,6 @@ function renderConsistencyGrid(sessions) {
   const daysToMon = dow === 0 ? 6 : dow - 1;
   const thisMon = new Date(today);
   thisMon.setDate(today.getDate() - daysToMon);
-
-  // Compute cell size so the grid fills the full container width
-  const GAP = 3;
-  const DAY_LABEL_W = 28; // approx width of "Mon"/"Wed"/"Fri" label column
-  const MIN_CELL = 8;
-  const containerW = grid.offsetWidth;
   // Cap weeks so cells never drop below MIN_CELL (prevents overflow on narrow screens)
   const maxWeeks = Math.floor((containerW - DAY_LABEL_W) / (MIN_CELL + GAP));
   const WEEKS = Math.min(53, Math.max(12, maxWeeks)); // current week + up to 52 weeks back
@@ -612,14 +616,17 @@ function renderConsistencyGrid(sessions) {
     }
   }
 
-  grid.appendChild(cal);
-
   // Less / More legend
   const legend = document.createElement('div');
   legend.className = 'grid-legend';
   legend.innerHTML = `<span class="grid-legend-text">Less</span>${[0,1,2,3,4].map(l =>
     `<span class="grid-cell grid-cell-l${l} grid-legend-cell"></span>`).join('')}<span class="grid-legend-text">More</span>`;
-  grid.appendChild(legend);
+
+  // Batch both nodes into one DOM insertion to avoid two separate reflows
+  const frag = document.createDocumentFragment();
+  frag.appendChild(cal);
+  frag.appendChild(legend);
+  grid.appendChild(frag);
 }
 
 function renderWeeklySnapshot(sessions) {
@@ -841,6 +848,8 @@ document.addEventListener('click', (e) => {
 });
 
 // ─── Init ─────────────────────────────────────────────────────────────────
+// Cache static node collections so setState/setMode don't re-query the DOM each call
+const modeBtns = Array.from(document.querySelectorAll('.mode-btn'));
 loadTheme();
 setState('idle');
 updateTimerDisplay();
